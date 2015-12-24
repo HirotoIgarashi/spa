@@ -12,12 +12,10 @@
 
 // ----------------- モジュールスコープ変数開始 -------------------
 'use strict';
-var
-  http      = require( 'http' ),
-  express   = require( 'express' ),
-
-  app       = express(),
-  server    = http.createServer( app );
+var http      = require( 'http' ),
+    express   = require( 'express' ),
+    app       = express(),
+    server    = http.createServer( app );
 // ----------------- モジュールスコープ変数終了 -------------------
 
 // ----------------- サーバ構成開始 -------------------------------
@@ -30,7 +28,8 @@ app.configure( function () {
 });
 
 app.get( '/', function( request, response ) {
-  response.redirect( '/index.html' );
+  //response.redirect( '/index.html' );
+  response.sendFile( '/index.html' );
 });
 // ----------------- サーバ構成終了 -------------------------------
 
