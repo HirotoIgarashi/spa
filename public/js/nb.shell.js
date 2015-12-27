@@ -55,7 +55,23 @@ nb.shell = (function() {
     //パブリックメソッド/initModule/開始
     initModule = function( $container ) {
       stateMap.$container = $container;
-      $container.html( configMap.main_html );
+
+      var p, t, frag;
+
+      frag = document.createDocumentFragment();
+
+      p = document.createElement('P');
+      t = document.createTextNode('first paragraph');
+      p.appendChild(t);
+      frag.appendChild(p);
+
+      p = document.createElement('footer');
+      t = document.createTextNode('footer');
+      p.appendChild(t);
+      frag.appendChild(p);
+
+      document.body.appendChild(frag);
+      //$container.html( configMap.main_html );
       setJqueryMap();
     };
     //パブリックメソッド/initModule/終了
