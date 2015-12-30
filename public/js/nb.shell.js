@@ -55,8 +55,12 @@ nb.shell = (function() {
                   + '<button type="submit" class="btn btn-default">Submit</button>'
                 + '</form>'
                 + '<ul class="nav navbar-nav navbar-right">'
-                  + '<li><a href="#" class="btn btn-default glyphicon glyphicon-user">アカウントを作成する</a></li>'
-                  + '<li><a href="#" class="btn btn-default">ログイン</a></li>'
+                  + '<li><button id="startSignup" type="button" class="btn btn-default navbar-btn">'
+                    + '<span class="glyphicon glyphicon-plus"></span>アカウントを作成する'
+                  + '</button></li>'
+                  + '<li><button id="login" type="button" class="btn btn-default navbar-btn">'
+                    + '<span class="glyphicon glyphicon-user"></span>ログイン'
+                  + '</button></li>'
                   + '<li class="dropdown">'
                     + '<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Dropdown <span class="caret"></span></a>'
                     + '<ul class="dropdown-menu">'
@@ -122,7 +126,35 @@ nb.shell = (function() {
                           + 'keffiyeh craft beer marfa ethical. Wolf salvia freegan, sartorial keffiyeh echo park'
                           + 'vegan.'
                         + '</div>'
-                      + '</div>'
+                      + '</div>',
+          signup_html: String()
+              + '<form id="signupForm">'
+                + '<div class="form-group">'
+                  + '<label for="email">Email address:</label>'
+                  + '<input type="email" class="form-control" id="email" placeholder="Email">'
+                + '</div>'
+                + '<div class="form-group">'
+                  + '<label for="password">Password:</label>'
+                  + '<input type="password" class="form-control" id="password" placeholder="Password">'
+                + '</div>'
+                + '<div class="form-group">'
+                  + '<label for="passconf">Confirm Password:</label>'
+                  + '<input type="password" class="form-control" id="passconf" placeholder="Password">'
+                + '</div>'
+                + '<button type="submit" class="btn btn-default">Signup</button>'
+              + '</form>',
+          login_html: String()
+              + '<form id="loginForm">'
+                + '<div class="form-group">'
+                + '<label for="email">Email address:</label>'
+                  + '<input type="email" class="form-control" id="email" placeholder="Email">'
+                + '</div>'
+                + '<div class="form-group">'
+                + '<label for="password">Password:</label>'
+                  + '<input type="password" class="form-control" id="password" placeholder="Password">'
+                + '</div>'
+                + '<button type="submit" class="btn btn-default">Login</button>'
+              + '</form>'
     },
     stateMap = {
       $container: null
@@ -142,15 +174,66 @@ nb.shell = (function() {
     //DOMメソッド/setJqueryMap/開始
 
     setJqueryMap = function() {
-      var $container = stateMap.container;
+      var $container = stateMap.$container;
 
-      jqueryMap = { $container: $container };
+      jqueryMap = {
+        $container: $container,
+        $myTabs: $container.find( '#myTabs' ),
+        $myTabContent: $container.find( '#myTabContent' ),
+        $startSignup: $container.find( '#startSignup' ),
+        $signupForm: $container.find( '#signupForm' ),
+        $loginForm: $container.find( '#loginForm' ),
+        $login: $container.find( '#login' )
+      };
     };
     //DOMメソッド/setJqueryMap/終了
     //------ DOMメソッド終了 ----------------------
 
     //------ イベントハンドラ開始 -----------------
     // 例: onClickButton = ...
+    onClickSignup = function( event ) {
+      var $container = stateMap.$container;
+      setJqueryMap();
+
+      jqueryMap.$myTabs.remove();
+      jqueryMap.$myTabContent.remove();
+      jqueryMap.$signupForm.remove();
+      jqueryMap.$loginForm.remove();
+      $container.append( configMap.signup_html);
+
+      $('#signupForm').validate({
+        rules: {
+          email: {
+            required  : true,
+            email     : true
+          },
+          password: {
+            minlength : 6,
+            required  : true
+          },
+          passconf: {
+            equalTo: "#password"
+          }
+        },
+        success: function(label) {
+          label.text('OK!').addClass('valid');
+        }
+      });
+
+      return false;
+    };
+    onClickLogin = function( event ) {
+      var $container = stateMap.$container;
+      setJqueryMap();
+
+      jqueryMap.$myTabs.remove();
+      jqueryMap.$myTabContent.remove();
+      jqueryMap.$signupForm.remove();
+      jqueryMap.$loginForm.remove();
+      $container.append( configMap.login_html);
+
+      return false;
+    };
     //------ イベントハンドラ終了 -----------------
 
     //------ パブリックメソッド開始 ---------------
@@ -160,6 +243,12 @@ nb.shell = (function() {
       $container.html( configMap.navbar_html );
       $container.append( configMap.tabs_html);
       setJqueryMap();
+
+      // クリックハンドラをバインドする
+      jqueryMap.$startSignup
+        .click( onClickSignup );
+      jqueryMap.$login
+        .click( onClickLogin );
     };
     //パブリックメソッド/initModule/終了
 
