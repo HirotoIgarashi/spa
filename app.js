@@ -1,5 +1,5 @@
 /*
- * app.js - 簡単なExpressサーバ
+ * app.js - Express server with routing
 */
 
 /*jslint          node    : true, continue : true,
@@ -14,6 +14,7 @@
 'use strict';
 var http      = require( 'http' ),
     express   = require( 'express' ),
+    routes   = require( './routes' ),
     app       = express(),
     server    = http.createServer( app );
 // ----------------- モジュールスコープ変数終了 -------------------
@@ -27,10 +28,10 @@ app.configure( function () {
   app.use( app.router );
 });
 
-app.get( '/', function( request, response ) {
-  //response.redirect( '/index.html' );
-  response.sendFile( '/index.html' );
-});
+//app.get( '/', function( request, response ) {
+//  //response.redirect( '/index.html' );
+//  response.sendFile( '/index.html' );
+//});
 // ----------------- サーバ構成終了 -------------------------------
 
 // ----------------- サーバ起動開始 -------------------------------
