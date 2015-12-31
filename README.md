@@ -5,3 +5,5 @@ Single Page Web Application
 $ npm install -g bower
 $ bower install angular
 $ bower install angular-route
+
+$ sudo apt-get install mongodb
