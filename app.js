@@ -28,10 +28,7 @@ app.configure( function () {
   app.use( app.router );
 });
 
-//app.get( '/', function( request, response ) {
-//  //response.redirect( '/index.html' );
-//  response.sendFile( '/index.html' );
-//});
+routes.configRoutes( app, server );
 // ----------------- サーバ構成終了 -------------------------------
 
 // ----------------- サーバ起動開始 -------------------------------

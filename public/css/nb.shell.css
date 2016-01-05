@@ -12,11 +12,21 @@ label.error {
   display       : inline-block;
 }
 .nb-shell-input {
-  display: inline-block;
+  display           : inline-block;
+  background-color  : ivory;
+}
+.nb-shell-error {
+  background-color: lightpink;
+}
+.nb-shell-valid {
+  background-color: powderblue;
 }
 .nb-shell-form div {
   padding : 5px;
   float   : left;
   clear   : left;
   width   : 100%;
+}
+#signupButton.disabled {
+  background-color: lemonchiffon;
 }

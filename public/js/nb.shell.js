@@ -131,18 +131,18 @@ nb.shell = (function() {
               + '<div id="signup">'
                 + '<form id="signupForm" class="nb-shell-form">'
                   + '<div>'
-                    + '<label for="email">Email address:</label>'
-                    + '<input name="email" id="email" type="text" class="nb-shell-input" />'
+                    + '<label for="email">E-mailアドレス:</label>'
+                    + '<input name="email" id="email" type="text" class="nb-shell-input" placeholder="Email" autofocus/>'
                   + '</div>'
                   + '<div>'
-                    + '<label for="password">Password:</label>'
+                    + '<label for="password">パスワード:</label>'
                     + '<input name="password" type="password" id="password" placeholder="Password" class="nb-shell-input" />'
                   + '</div>'
                   + '<div>'
-                    + '<label for="passconf">Confirm Password:</label>'
+                    + '<label for="passconf">パスワード(確認):</label>'
                     + '<input name="passconf" type="password" id="passconf" placeholder="Password" class="nb-shell-input" />'
                   + '</div>'
-                  + '<input type="submit" value="Signup" class="nb-shell-input" />'
+                  + '<input id="signupButton" type="submit" value="Signup" class="nb-shell-button" />'
                 + '</form>'
               + '</div>',
           login_html: String()
@@ -165,12 +165,88 @@ nb.shell = (function() {
     },
     jqueryMap = {},
     setJqueryMap,
+    errorCode,
     initModule;
 
     //------ モジュールスコープ変数終了 -----------
 
     //------ ユーティリティメソッド開始 -----------
-    // 例: getTrimmedString
+
+    // emailのvalidate
+    function validateEmail( fld ) {
+      var emailFilter = /^([a-zA-Z0-9_\.\-])+\@(([a-zA-Z0-9\-])+\.)+([a-zA-Z0-9]{2,4})+$/;
+      if ( !emailFilter.test(fld.val()) ) {
+        errorCode = "正しいE-mailアドレスを入力してください。\n";
+        return false;
+      } else {
+        return true;
+      }
+    }
+
+    // パスワードのvalidate
+    function validatePassword( fld ) {
+      var error="",
+          illegalChars = /[\W_]/; // allow only letters and numbers
+
+      if (fld.val() == "") {
+        errorCode = "パスワードが入力されていません。\n";
+        return false;
+      } else if ( (fld.val().length < 7) || (fld.val().length > 15) ) {
+        errorCode = "パスワードは7文字以上、15文字以下にしてください。\n";
+        return false;
+      } else if ( illegalChars.test(fld.val()) ) {
+        errorCode = "パスワードに無効な文字が含まれています。\n";
+        return false;
+      } else if ( (fld.val().search(/[a-zA-Z]+/) == -1) || (fld.val().search(/[0-9]+/) == -1) ) {
+        errorCode = "パスワードには少なくとも1つの数字が含まれている必要があります。\n";
+        return false;
+      } 
+      return true;
+    }
+    // compare Password
+    function comparePassword( password, passconf ) {
+      if ( password.attr('class') === 'nb-shell-input nb-shell-error' ) {
+        errorCode = "パスワードが正しくありません。\n";
+        return false;
+      } else if ( passconf.val().length === 0 ) {
+        errorCode = "パスワードを入力してください。\n";
+        return false;
+      } else if ( password.val() !== passconf.val() ) {
+        errorCode = "同じパスワードを入力してください。\n";
+        return false;
+      } else {
+        return true;
+      }
+    }
+
+    // 入力内容が不正なInput Field
+    function invalidInput( fld ) {
+      fld
+        .removeClass('nb-shell-valid')
+        .addClass('nb-shell-error')
+        .after('<span>' + errorCode + '</span>');
+    }
+
+    // 入力内容が正しいInput Field
+    function comfirmedInput( fld ) {
+      fld
+        .removeClass('nb-shell-error')
+        .addClass('nb-shell-valid')
+        .after('<span> OK!</span>');
+    }
+
+    // email, password, passconfのclassにnb-shell-validが入っているか
+    function checkRegistForm( email, password, passconf ) {
+      if (
+        email.hasClass( "nb-shell-valid" ) &&
+        password.hasClass( "nb-shell-valid" ) &&
+        passconf.hasClass( "nb-shell-valid" )
+      ) {
+        return true;
+      } else {
+        return false;
+      }
+    }
 
     //------ ユーティリティメソッド終了 -----------
 
@@ -181,13 +257,13 @@ nb.shell = (function() {
       var $container = stateMap.$container;
 
       jqueryMap = {
-        $container: $container,
-        $myTabs: $container.find( '#myTabs' ),
-        $myTabContent: $container.find( '#myTabContent' ),
-        $startSignup: $container.find( '#startSignup' ),
-        $signupForm: $container.find( '#signupForm' ),
-        $loginForm: $container.find( '#loginForm' ),
-        $login: $container.find( '#login' )
+        $container    : $container,
+        $myTabs       : $container.find( '#myTabs' ),
+        $myTabContent : $container.find( '#myTabContent' ),
+        $startSignup  : $container.find( '#startSignup' ),
+        $signupForm   : $container.find( '#signupForm' ),
+        $loginForm    : $container.find( '#loginForm' ),
+        $login        : $container.find( '#login' )
       };
     };
     //DOMメソッド/setJqueryMap/終了
@@ -196,36 +272,94 @@ nb.shell = (function() {
     //------ イベントハンドラ開始 -----------------
     // 例: onClickButton = ...
     onClickSignup = function( event ) {
-      var $container = stateMap.$container;
+      var $container  = stateMap.$container;
+
       setJqueryMap();
 
+      // サインアップフォームを表示する。
       jqueryMap.$myTabs.remove();
       jqueryMap.$myTabContent.remove();
       jqueryMap.$signupForm.remove();
       jqueryMap.$loginForm.remove();
       $container.append( configMap.signup_html);
 
-      $('#signupForm').validate({
-        rules: {
-          email: {
-            required  : true,
-            email     : true
-          },
-          password: {
-            minlength : 6,
-            required  : true
-          },
-          passconf: {
-            equalTo: "#password"
+      // Bind keypress event to textbox
+      $('.nb-shell-input').keypress(function(event) {
+        var keycode       = (event.keyCode ? event.keyCode : event.which),
+            $currentInput = $(this),
+            //$inputList    = $('input:enabled');
+            $inputList    = $('input');
+
+        if (keycode == '13') {
+          //alert("enter key pushed");
+          $inputList.each(function( index ) {
+            if ( $(this).is($currentInput) ) {
+              var targetIndex = (!event.shiftKey) ? (index + 1) : (index - 1);
+              $(this).blur();
+              $inputList.eq(targetIndex).focus();
+              event.preventDefault();
+            }
+          });
+        }
+        //return false;
+      });
+
+      $('.nb-shell-input').blur(function() {
+        if ( $(this).attr('id') === 'email') {
+          if ( !validateEmail($(this)) ) {
+            invalidInput($(this));
           }
-        },
-        success: function(label) {
-          label.text('OK!').addClass('valid');
+          else {
+            comfirmedInput($(this));
+          }
+        }
+        else if ( $(this).attr('id') === 'password' ) {
+          if ( !validatePassword($(this)) ) {
+            invalidInput($(this));
+          }
+          else {
+            comfirmedInput($(this));
+          }
+        }
+        else if ( $(this).attr('id') === 'passconf' ) {
+          if ( !comparePassword( $('#password'), $('#passconf') ) ) {
+            invalidInput($(this));
+          }
+          else {
+            comfirmedInput($(this));
+          }
+        }
+        if ( checkRegistForm( $('#email'), $('#password'), $('#passconf') ) ){
+          // ポタンをabledにする。
+          $('#signupButton')
+            .attr("disabled", false)
+            .removeClass('disabled');
         }
       });
+      $('.nb-shell-input').focus(function() {
+        $(this)
+          .removeClass('nb-shell-error')
+          .next('span')
+          .remove();
+        // ボタンを無効にする。
+        $('#signupButton')
+          .attr("disabled", true)
+          .addClass('disabled');
+      });
+
+      $('#signupForm').submit(function( event ) {
+        alert( "handler for .submit() called." );
+        event.preventDefault();
+      });
+
+      //$('#signupButton').click(function() {
+      //  alert( "handler for .submit() called." );
+      
+      //});
 
       return false;
     };
+
     onClickLogin = function( event ) {
       var $container = stateMap.$container;
       setJqueryMap();
@@ -235,6 +369,20 @@ nb.shell = (function() {
       jqueryMap.$signupForm.remove();
       jqueryMap.$loginForm.remove();
       $container.append( configMap.login_html);
+
+      // Bind keypress event to textbox
+      $('.nb-shell-input').keypress(function(event) {
+        var keycode = (event.keyCode ? event.keyCode : event.which);
+        if (keycode == '13') {
+          alert('You pressed a "enter" key in textbox');
+        }
+        return false;
+      });
+
+      $('#loginForm').submit(function( event ) {
+        alert( "handler for .submit() called." );
+        event.preventDefault();
+      });
 
       return false;
     };
