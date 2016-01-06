@@ -166,6 +166,8 @@ nb.shell = (function() {
     jqueryMap = {},
     setJqueryMap,
     errorCode,
+    onClickLogin,
+    onClickSignup,
     initModule;
 
     //------ モジュールスコープ変数終了 -----------
@@ -178,45 +180,55 @@ nb.shell = (function() {
       if ( !emailFilter.test(fld.val()) ) {
         errorCode = "正しいE-mailアドレスを入力してください。\n";
         return false;
-      } else {
-        return true;
       }
+      return true;
     }
 
     // パスワードのvalidate
     function validatePassword( fld ) {
-      var error="",
-          illegalChars = /[\W_]/; // allow only letters and numbers
+      var illegalChars = /[\W_]/; // allow only letters and numbers
 
-      if (fld.val() == "") {
+      if (fld.val() === "") {
         errorCode = "パスワードが入力されていません。\n";
         return false;
-      } else if ( (fld.val().length < 7) || (fld.val().length > 15) ) {
+      }
+
+      if ( (fld.val().length < 7) || (fld.val().length > 15) ) {
         errorCode = "パスワードは7文字以上、15文字以下にしてください。\n";
         return false;
-      } else if ( illegalChars.test(fld.val()) ) {
+      }
+
+      if ( illegalChars.test(fld.val()) ) {
         errorCode = "パスワードに無効な文字が含まれています。\n";
         return false;
-      } else if ( (fld.val().search(/[a-zA-Z]+/) == -1) || (fld.val().search(/[0-9]+/) == -1) ) {
+      }
+
+      if ( (fld.val().search(/[a-zA-Z]+/) === -1) || (fld.val().search(/[0-9]+/) === -1) ) {
         errorCode = "パスワードには少なくとも1つの数字が含まれている必要があります。\n";
         return false;
       } 
+
       return true;
     }
     // compare Password
     function comparePassword( password, passconf ) {
+
       if ( password.attr('class') === 'nb-shell-input nb-shell-error' ) {
         errorCode = "パスワードが正しくありません。\n";
         return false;
-      } else if ( passconf.val().length === 0 ) {
+      }
+
+      if ( passconf.val().length === 0 ) {
         errorCode = "パスワードを入力してください。\n";
         return false;
-      } else if ( password.val() !== passconf.val() ) {
+      }
+
+      if ( password.val() !== passconf.val() ) {
         errorCode = "同じパスワードを入力してください。\n";
         return false;
-      } else {
-        return true;
       }
+
+      return true;
     }
 
     // 入力内容が不正なInput Field
@@ -243,9 +255,8 @@ nb.shell = (function() {
         passconf.hasClass( "nb-shell-valid" )
       ) {
         return true;
-      } else {
-        return false;
       }
+      return false;
     }
 
     //------ ユーティリティメソッド終了 -----------
@@ -271,7 +282,7 @@ nb.shell = (function() {
 
     //------ イベントハンドラ開始 -----------------
     // 例: onClickButton = ...
-    onClickSignup = function( event ) {
+    onClickSignup = function() {
       var $container  = stateMap.$container;
 
       setJqueryMap();
@@ -285,12 +296,12 @@ nb.shell = (function() {
 
       // Bind keypress event to textbox
       $('.nb-shell-input').keypress(function(event) {
-        var keycode       = (event.keyCode ? event.keyCode : event.which),
+        var keycode       = event.keyCode || event.which,
             $currentInput = $(this),
             //$inputList    = $('input:enabled');
             $inputList    = $('input');
 
-        if (keycode == '13') {
+        if ( keycode === 13 ) {
           //alert("enter key pushed");
           $inputList.each(function( index ) {
             if ( $(this).is($currentInput) ) {
@@ -329,12 +340,14 @@ nb.shell = (function() {
             comfirmedInput($(this));
           }
         }
+
         if ( checkRegistForm( $('#email'), $('#password'), $('#passconf') ) ){
-          // ポタンをabledにする。
+          // ポタンを有効にする。
           $('#signupButton')
             .attr("disabled", false)
             .removeClass('disabled');
         }
+
       });
       $('.nb-shell-input').focus(function() {
         $(this)
@@ -360,7 +373,7 @@ nb.shell = (function() {
       return false;
     };
 
-    onClickLogin = function( event ) {
+    onClickLogin = function() {
       var $container = stateMap.$container;
       setJqueryMap();
 
@@ -372,8 +385,9 @@ nb.shell = (function() {
 
       // Bind keypress event to textbox
       $('.nb-shell-input').keypress(function(event) {
-        var keycode = (event.keyCode ? event.keyCode : event.which);
-        if (keycode == '13') {
+        //var keycode = (event.keyCode ? event.keyCode : event.which);
+        var keycode = event.keyCode || event.which;
+        if ( keycode === 13 ) {
           alert('You pressed a "enter" key in textbox');
         }
         return false;
