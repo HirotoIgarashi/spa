@@ -165,7 +165,6 @@ nb.shell = (function() {
     },
     jqueryMap = {},
     setJqueryMap,
-    errorCode,
     onClickLogin,
     onClickSignup,
     initModule;
@@ -178,10 +177,15 @@ nb.shell = (function() {
     function validateEmail( fld ) {
       var emailFilter = /^([a-zA-Z0-9_\.\-])+\@(([a-zA-Z0-9\-])+\.)+([a-zA-Z0-9]{2,4})+$/;
       if ( !emailFilter.test(fld.val()) ) {
-        errorCode = "正しいE-mailアドレスを入力してください。\n";
-        return false;
+        return {
+          returnCode  : false,
+          errorCode   : "正しいE-mailアドレスを入力してください。"
+        };
       }
-      return true;
+      return {
+        returnCode  : true,
+        errorCode   : "OK!"
+      };
     }
 
     // パスワードのvalidate
@@ -189,50 +193,69 @@ nb.shell = (function() {
       var illegalChars = /[\W_]/; // allow only letters and numbers
 
       if (fld.val() === "") {
-        errorCode = "パスワードが入力されていません。\n";
-        return false;
+        return {
+          returnCode: false,
+          errorCode : "パスワードが入力されていません。"
+        };
       }
 
       if ( (fld.val().length < 7) || (fld.val().length > 15) ) {
-        errorCode = "パスワードは7文字以上、15文字以下にしてください。\n";
-        return false;
+        return {
+          returnCode: false,
+          errorCode : "パスワードは7文字以上、15文字以下にしてください。"
+        };
       }
 
       if ( illegalChars.test(fld.val()) ) {
-        errorCode = "パスワードに無効な文字が含まれています。\n";
-        return false;
+        return {
+          returnCode: false,
+          errorCode : "パスワードに無効な文字が含まれています。"
+        };
       }
 
       if ( (fld.val().search(/[a-zA-Z]+/) === -1) || (fld.val().search(/[0-9]+/) === -1) ) {
-        errorCode = "パスワードには少なくとも1つの数字が含まれている必要があります。\n";
-        return false;
+        return {
+          returnCode  : false,
+          errorCode   : "パスワードには少なくとも1つの数字が含まれている必要があります。"
+        };
       } 
 
-      return true;
+      return {
+        returnCode  : true,
+        errorCode   : "OK!"
+      };
     }
     // compare Password
     function comparePassword( password, passconf ) {
 
       if ( password.attr('class') === 'nb-shell-input nb-shell-error' ) {
-        errorCode = "パスワードが正しくありません。\n";
-        return false;
+        return {
+          returnCode: false,
+          errorCode: 'パスワードが正しくありません。'
+        };
       }
 
       if ( passconf.val().length === 0 ) {
-        errorCode = "パスワードを入力してください。\n";
-        return false;
+        return {
+          returnCode: false,
+          errorCode: 'パスワードを入力したください。'
+        };
       }
 
       if ( password.val() !== passconf.val() ) {
-        errorCode = "同じパスワードを入力してください。\n";
-        return false;
+        return {
+          returnCode: false,
+          errorCode: '同じパスワードを入力したください。'
+        };
       }
-
-      return true;
+      return {
+        returnCode: true,
+        errorCode: 'OK!'
+      };
     }
 
     // 入力内容が不正なInput Field
-    function invalidInput( fld ) {
+    function invalidInput( fld, errorCode ) {
       fld
         .removeClass('nb-shell-valid')
         .addClass('nb-shell-error')
@@ -240,11 +263,11 @@ nb.shell = (function() {
     }
 
     // 入力内容が正しいInput Field
-    function comfirmedInput( fld ) {
+    function comfirmedInput( fld, errorCode ) {
       fld
         .removeClass('nb-shell-error')
         .addClass('nb-shell-valid')
-        .after('<span> OK!</span>');
+        .after('<span>' + errorCode + '</span>');
     }
 
     // email, password, passconfのclassにnb-shell-validが入っているか
@@ -312,33 +335,26 @@ nb.shell = (function() {
             }
           });
         }
-        //return false;
       });
 
       $('.nb-shell-input').blur(function() {
+        var return_object;
+
         if ( $(this).attr('id') === 'email') {
-          if ( !validateEmail($(this)) ) {
-            invalidInput($(this));
-          }
-          else {
-            comfirmedInput($(this));
-          }
+          return_object = validateEmail($(this));
         }
         else if ( $(this).attr('id') === 'password' ) {
-          if ( !validatePassword($(this)) ) {
-            invalidInput($(this));
-          }
-          else {
-            comfirmedInput($(this));
-          }
+          return_object = validatePassword($(this));
         }
         else if ( $(this).attr('id') === 'passconf' ) {
-          if ( !comparePassword( $('#password'), $('#passconf') ) ) {
-            invalidInput($(this));
-          }
-          else {
-            comfirmedInput($(this));
-          }
+          return_object = comparePassword( $('#password'), $('#passconf') );
+        }
+
+        if ( !return_object.returnCode ) {
+          invalidInput( $(this), return_object.errorCode );
+        }
+        else {
+          comfirmedInput( $(this), return_object.errorCode );
         }
 
         if ( checkRegistForm( $('#email'), $('#password'), $('#passconf') ) ){
@@ -347,8 +363,8 @@ nb.shell = (function() {
             .attr("disabled", false)
             .removeClass('disabled');
         }
-
       });
+
       $('.nb-shell-input').focus(function() {
         $(this)
           .removeClass('nb-shell-error')
@@ -361,15 +377,27 @@ nb.shell = (function() {
       });
 
       $('#signupForm').submit(function( event ) {
-        alert( "handler for .submit() called." );
+        // Stop form from submitting normally
         event.preventDefault();
+
+        var form_data = {
+          email     : $('#email').val(),
+          password  : $('#password').val(),
+          passconf  : $('#passconf').val()
+        };
+
+        $.ajax({
+          type        : "POST",
+          url         : "user/create",
+          data        : JSON.stringify(form_data),
+          success     : function() {
+            alert("success");
+          },
+          contentType : "application/json",
+          dataType    : "json"
+        });
+
       });
-
-      //$('#signupButton').click(function() {
-      //  alert( "handler for .submit() called." );
-      
-      //});
-
       return false;
     };
 
@@ -385,7 +413,6 @@ nb.shell = (function() {
 
       // Bind keypress event to textbox
       $('.nb-shell-input').keypress(function(event) {
-        //var keycode = (event.keyCode ? event.keyCode : event.which);
         var keycode = event.keyCode || event.which;
         if ( keycode === 13 ) {
           alert('You pressed a "enter" key in textbox');
