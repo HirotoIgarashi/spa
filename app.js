@@ -12,11 +12,17 @@
 
 // ----------------- モジュールスコープ変数開始 -------------------
 'use strict';
-var http      = require( 'http' ),
+var https     = require( 'https' ),
+    fs        = require( 'fs' ),
     express   = require( 'express' ),
-    routes   = require( './routes' ),
+    routes    = require( './routes' ),
     app       = express(),
-    server    = http.createServer( app );
+    opts      = {
+      key   : fs.readFileSync('key.pem'),
+      cert  : fs.readFileSync('cert.pem'),
+      NPNProtocols  : ['http/2.0', 'spdy', 'http/1.1']
+    },
+    server    = https.createServer( opts, app );
 // ----------------- モジュールスコープ変数終了 -------------------
 
 // ----------------- サーバ構成開始 -------------------------------
@@ -32,7 +38,7 @@ routes.configRoutes( app, server );
 // ----------------- サーバ構成終了 -------------------------------
 
 // ----------------- サーバ起動開始 -------------------------------
-server.listen( 3000 );
+server.listen( 4443 );
 console.log(
   'Express server listening on port %d in %s mode',
   server.address().port, app.settings.env

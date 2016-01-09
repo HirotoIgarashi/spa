@@ -390,11 +390,33 @@ nb.shell = (function() {
           type        : "POST",
           url         : "user/create",
           data        : JSON.stringify(form_data),
-          success     : function() {
-            alert("success");
+          success     : function( data, dataType ) {
+            //alert("Data: " + data + "\nStatus: " + dataType );
+            $('#signupButton')
+              .after( '<span>  Result: ' + dataType + '</span>' );
+            $('#email')
+              .val("")
+              .removeClass('nb-shell-valid')
+              .next('span')
+              .remove();
+            $('#password')
+              .val("")
+              .removeClass('nb-shell-valid')
+              .next('span')
+              .remove();
+            $('#passconf')
+              .val("")
+              .removeClass('nb-shell-valid')
+              .next('span')
+              .remove();
           },
           contentType : "application/json",
-          dataType    : "json"
+          dataType    : "json",
+          error       : function() {
+            alert("Server Error.");
+          }//,
+          //complete    : function() {
+          //}
         });
 
       });

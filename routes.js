@@ -25,21 +25,30 @@ var
     'nb', mongoServer, { safe: true }
   ),
 
-  makeMongoId = mongodb.ObjectID;
+  makeMongoId = mongodb.ObjectID,
+  objTypeMap  = { 'user': { } };
 
 //------ モジュールスコープ変数終了 -----------
 
 //------ パブリックメソッド開始 -----------
 configRoutes = function( app, server ) {
   app.get( '/', function( request, response ) {
-    //response.redirect( 'index.html' );
-    response.sendFile( '/index.html' );
+    response.redirect( 'index.html' );
+    //response.sendFile( '/index.html' );
     console.log('accessed!');
   });
 
   app.all( '/:obj_type/*?', function( request, response, next ) {
     response.contentType( 'json' );
-    next();
+    if ( objTypeMap[ request.params.obj_type ] ) {
+      next();
+    }
+    else {
+      response.send(JSON.stringify({ error_msg : request.params.obj_type
+                    + ' is not a valid object type'
+      }));
+    }
+    //next();
   });
 
   app.get( '/:obj_type/list', function( request, response ) {
