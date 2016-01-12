@@ -238,7 +238,7 @@ nb.shell = (function() {
       if ( passconf.val().length === 0 ) {
         return {
           returnCode: false,
-          errorCode: 'パスワードを入力したください。'
+          errorCode: 'パスワードを入力してください。'
         };
       }
 
@@ -412,8 +412,16 @@ nb.shell = (function() {
           },
           contentType : "application/json",
           dataType    : "json",
-          error       : function() {
-            alert("Server Error.");
+          error       : function( data ) {
+            $('#signupButton')
+              .removeClass('nb-shell-valid')
+              .after( '<span>  Result: ' + data.responseText + '</span>' );
+            $('#email')
+              .val("")
+              .removeClass('nb-shell-valid')
+              .addClass('nb-shell-error')
+              .next('span')
+              .remove();
           }//,
           //complete    : function() {
           //}

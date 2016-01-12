@@ -38,9 +38,10 @@ routes.configRoutes( app, server );
 // ----------------- サーバ構成終了 -------------------------------
 
 // ----------------- サーバ起動開始 -------------------------------
-server.listen( 4443 );
+server.listen( 443 );
 console.log(
   'Express server listening on port %d in %s mode',
+  //server.address().port, app.settings.env
   server.address().port, app.settings.env
 );
 // ----------------- サーバ起動終了 -------------------------------

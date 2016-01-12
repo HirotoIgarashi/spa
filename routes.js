@@ -16,6 +16,7 @@ white   : true
 var
   configRoutes,
   mongodb     = require( 'mongodb' ),
+  crypto      = require( 'crypto' ),
 
   mongoServer = new mongodb.Server(
     'localhost',
@@ -34,8 +35,6 @@ var
 configRoutes = function( app, server ) {
   app.get( '/', function( request, response ) {
     response.redirect( 'index.html' );
-    //response.sendFile( '/index.html' );
-    console.log('accessed!');
   });
 
   app.all( '/:obj_type/*?', function( request, response, next ) {
@@ -65,19 +64,69 @@ configRoutes = function( app, server ) {
   });
 
   app.post( '/:obj_type/create', function( request, response ) {
+    var options_map = { safe: true },
+        obj_map     = request.body;
+
     dbHandle.collection(
       request.params.obj_type,
       function( outer_error, collection ) {
-        var options_map = { safe: true },
-            obj_map     = request.body;
+        // userの処理
+        if ( request.params.obj_type === "user" ) {
+          collection.find().toArray(
+            function ( inner_error, map_list )  {
+              var error,
+                  i,
+                  email       = request.body.email,
+                  password    = request.body.password,
+                  passconf    = request.body.passconf,
+                  hash        = crypto
+                                  .createHash('md5')
+                                  .update(password)
+                                  .digest('hex');
 
-        collection.insert(
-          obj_map,
-          options_map,
-          function ( inner_error, result_map ) {
-            response.send( result_map );
-          }
-        );
+              for ( i = 0; i < map_list.length; i++ ) {
+                if ( email === map_list[i].email ) {
+                  error = true;
+                  response
+                    .status(409)
+                    .send("同じemailアドレスが登録されています。");
+                }
+              }
+              
+              if ( password !== passconf ) {
+                error = true;
+                response
+                  .status(409)
+                  .send('パスワードが一致していません。');
+              }
+
+              if ( !error ) {
+                // パスワードを暗号化したものに書き換える。
+                obj_map.password = hash;
+                // passconfは登録しないので削除する。
+                delete obj_map.passconf;
+
+                collection.insert(
+                  obj_map,
+                  options_map,
+                  function ( inner_error, result_map ) {
+                    response.send( result_map );
+                  }
+                );
+              }
+            }
+          );
+        }
+        // user以外の処理
+        else {
+          collection.insert(
+            obj_map,
+            options_map,
+            function ( inner_error, result_map ) {
+              response.send( result_map );
+            }
+          );
+        }
       }
     );
   });
@@ -131,7 +180,7 @@ configRoutes = function( app, server ) {
     dbHandle.collection(
       request.params.obj_type,
       function ( outer_error, collection ) {
-        var obj_map = {
+        var options_map = {
           safe    : true,
           single  : true
         };
