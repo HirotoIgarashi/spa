@@ -103,6 +103,17 @@ configRoutes = function( app, server ) {
     );
   });
 
+  app.get( '/user/logout', function( request, response ) {
+    request.session.destroy( function( err ) {
+      if ( err ) {
+        console.log( err );
+      }
+      response
+        .status(200)
+        .send( 'ログアウトしました' );
+    } );
+  } );
+
   app.post( '/:obj_type/create', function( request, response ) {
     var options_map = { safe: true },
         obj_map     = request.body;

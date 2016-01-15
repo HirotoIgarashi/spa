@@ -475,10 +475,18 @@ nb.shell = (function() {
     initModule = function( $container ) {
       stateMap.$container = $container;
 
+      // 起動時にセッションがあるか確認する。
       $.get( "/user/authentication" )
         .done( function( data ) {
           if ( data.state === "success" ) {
             $container.html( configMap.navbar_html );
+            setJqueryMap();
+            $('#startSignup')
+              .remove();
+            $('#login')
+              .after('<button id="logout" type="button" class="btn btn-default navbar-btn">ログアウト</button>')
+            $('#login')
+              .remove();
           }
           else {
             $container.html( configMap.navbar_html );
