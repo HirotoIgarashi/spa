@@ -12,17 +12,21 @@
 
 // ----------------- モジュールスコープ変数開始 -------------------
 'use strict';
-var https     = require( 'https' ),
-    fs        = require( 'fs' ),
-    express   = require( 'express' ),
-    routes    = require( './routes' ),
-    app       = express(),
-    opts      = {
+var https       = require( 'https' ),
+    fs          = require( 'fs' ),
+    express     = require( 'express' ),
+    redis       = require( 'redis' ),
+    session     = require( 'express-session' ),
+    RedisStore  = require( 'connect-redis' )( session ),
+    client      = redis.createClient(),
+    routes      = require( './routes' ),
+    app         = express(),
+    opts        = {
       key   : fs.readFileSync('key.pem'),
       cert  : fs.readFileSync('cert.pem'),
       NPNProtocols  : ['http/2.0', 'spdy', 'http/1.1']
     },
-    server    = https.createServer( opts, app );
+    server      = https.createServer( opts, app );
 // ----------------- モジュールスコープ変数終了 -------------------
 
 // ----------------- サーバ構成開始 -------------------------------
@@ -30,6 +34,21 @@ app.configure( function () {
   app.use( express.logger() );
   app.use( express.bodyParser() );
   app.use( express.methodOverride() );
+  app.use( express.cookieParser() );
+  app.use( express.session({
+    secret            : 'koobetoN',
+    cookie            : {
+      maxAge  : 1000*60*60*24*7 // 1 week
+    },
+    store             : new RedisStore({
+      host    : 'localhost',
+      port    : 6379,
+      client  : client,
+      ttl     : 260
+    }),
+    saveUninitialized : false,
+    resave            : false
+  }) );
   app.use( express.static( __dirname + '/public' ) );
   app.use( app.router );
 });

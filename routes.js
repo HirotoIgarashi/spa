@@ -2,14 +2,15 @@
  * routes.js
  * ルーティングを提供するモジュール
  */
-/*jslint          browser : true, continue  : true,
-devel   : true, indent  : 2,    maxerr    : 50,
-newcap  : true, nomen   : true, plusplus  : true,
-regexp  : true, sloppy  : true, vars      : false,
-white   : true
+
+/*jslint          node    : true, continue  : true,
+  devel   : true, indent  : 2,    maxerr    : 50,
+  newcap  : true, nomen   : true, plusplus  : true,
+  regexp  : true, sloppy  : true, vars      : false,
+  white   : true
 */
 
-/*global $, nb */
+/*global */
 
 //------ モジュールスコープ変数開始 -----------
 'use strict';
@@ -50,6 +51,15 @@ configRoutes = function( app, server ) {
     //next();
   });
 
+  app.get( '/user/authentication', function( request, response ) {
+    if ( request.session.user ) {
+      response.send({"state": "success", "email": request.session.user.email });
+    }
+    else {
+      response.send({"state": "failed"});
+    }
+  });
+
   app.get( '/:obj_type/list', function( request, response ) {
     dbHandle.collection(
       request.params.obj_type,
@@ -57,6 +67,36 @@ configRoutes = function( app, server ) {
         collection.find().toArray(
           function ( inner_error, map_list ) {
             response.send( map_list );
+          }
+        );
+      }
+    );
+  });
+
+  app.post( '/user/login', function( request, response ) {
+    var options_map = { safe: true },
+        obj_map     = request.body,
+        email       = request.body.email,
+        password    = request.body.password,
+        find_map = { "email": request.body.email };
+
+    dbHandle.collection(
+      'user',
+      function( outer_error, collection ) {
+        collection.findOne(
+          find_map,
+          function ( inner_error, result_map ) {
+            if ( result_map !== null && password === result_map.password ) {
+              request.session.user = {
+                email: email
+              };
+              response.send( result_map );
+            }
+            else {
+              response
+                .status(409)
+                .send("emailアドレスが登録されていないかパスワードと一致しません。");
+            }
           }
         );
       }
@@ -78,11 +118,11 @@ configRoutes = function( app, server ) {
                   i,
                   email       = request.body.email,
                   password    = request.body.password,
-                  passconf    = request.body.passconf,
-                  hash        = crypto
-                                  .createHash('md5')
-                                  .update(password)
-                                  .digest('hex');
+                  passconf    = request.body.passconf;
+                  //hash        = crypto
+                  //                .createHash('md5')
+                  //                .update(password)
+                  //                .digest('hex');
 
               for ( i = 0; i < map_list.length; i++ ) {
                 if ( email === map_list[i].email ) {
@@ -102,7 +142,7 @@ configRoutes = function( app, server ) {
 
               if ( !error ) {
                 // パスワードを暗号化したものに書き換える。
-                obj_map.password = hash;
+                //obj_map.password = hash;
                 // passconfは登録しないので削除する。
                 delete obj_map.passconf;
 
@@ -197,7 +237,12 @@ configRoutes = function( app, server ) {
   });
 };
 
-module.exports = { configRoutes: configRoutes };
+module.exports = { 
+  configRoutes  : configRoutes,
+  mongodb       : mongodb,
+  mongoServer   : mongoServer,
+  dbHandle      : dbHandle
+};
 //------ パブリックメソッド終了 -----------
 
 //------ モジュール初期化開始 

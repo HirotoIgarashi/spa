@@ -28,7 +28,7 @@ nb.shell = (function() {
                   + '<span class="icon-bar"></span>'
                   + '<span class="icon-bar"></span>'
                 + '</button>'
-                + '<a class="navbar-brand" href="#">'
+                + '<a class="navbar-brand" href="/">'
                   + '<img alt="Note" src="/images/note.jpg" height="30px" width="45px">'
                 + '</a>'
               + '</div>'
@@ -78,7 +78,7 @@ nb.shell = (function() {
           tabs_html: String()
                       + '<ul id="myTabs" class="nav nav-tabs" role="tablist">'
                         + '<li role="presentation" class="active">'
-                          + '<a href="#home" id="home-tab" role="tab" data-toggle="tab" aria-controls="home" aria-expanded="true">Home</a>'
+                          + '<a href="#home" id="home-tab" role="tab" data-toggle="tab" aria-controls="home" aria-expanded="true">Notebookとは</a>'
                         + '</li>'
                         + '<li role="presentation" class="">'
                           + '<a href="#profile" id="profile-tab" role="tab" data-toggle="tab" aria-controls="profile" aria-expanded="false">Profile</a>'
@@ -156,7 +156,9 @@ nb.shell = (function() {
                   + '<label for="password">Password:</label>'
                     + '<input type="password" id="password" placeholder="Password" class="nb-shell-input" />'
                   + '</div>'
-                  + '<input type="submit" value="Login" class="nb-shell-input" />'
+                  + '<input id="loginButton" type="submit" value="Login" class="nb-shell-input" />'
+                  + '<span>'
+                  + '</span>'
                 + '</form>'
               + '</div>'
     },
@@ -390,10 +392,12 @@ nb.shell = (function() {
           type        : "POST",
           url         : "user/create",
           data        : JSON.stringify(form_data),
+          contentType : "application/json",
+          dataType    : "json",
           success     : function( data, dataType ) {
             //alert("Data: " + data + "\nStatus: " + dataType );
             $('#signupButton')
-              .after( '<span>  Result: ' + dataType + '</span>' );
+              .after( '<span>  result code: ' + dataType + ': 登録が完了しました。</span>' );
             $('#email')
               .val("")
               .removeClass('nb-shell-valid')
@@ -410,18 +414,12 @@ nb.shell = (function() {
               .next('span')
               .remove();
           },
-          contentType : "application/json",
-          dataType    : "json",
           error       : function( data ) {
-            $('#signupButton')
-              .removeClass('nb-shell-valid')
-              .after( '<span>  Result: ' + data.responseText + '</span>' );
             $('#email')
-              .val("")
               .removeClass('nb-shell-valid')
               .addClass('nb-shell-error')
               .next('span')
-              .remove();
+              .html( '<span>' + data.responseText + '</span>' );
           }//,
           //complete    : function() {
           //}
@@ -441,18 +439,31 @@ nb.shell = (function() {
       jqueryMap.$loginForm.remove();
       $container.append( configMap.login_html);
 
-      // Bind keypress event to textbox
-      $('.nb-shell-input').keypress(function(event) {
-        var keycode = event.keyCode || event.which;
-        if ( keycode === 13 ) {
-          alert('You pressed a "enter" key in textbox');
-        }
-        return false;
-      });
-
       $('#loginForm').submit(function( event ) {
-        alert( "handler for .submit() called." );
         event.preventDefault();
+
+        var form_data = {
+          email     : $('#email').val(),
+          password  : $('#password').val()
+        };
+
+        $.ajax({
+          type        : "POST",
+          url         : "user/login",
+          data        : JSON.stringify( form_data ),
+          contentType : "application/json",
+          dataType    : "json",
+          success     : function( data ) {
+            $('#loginButton')
+              .next('span')
+              .html( '<span>  result code: ' + data.email + '</span>' );
+          },
+          error       : function( data ) {
+            $('#loginButton')
+              .next('span')
+              .html( '<span>  result code: ' + data.responseText + '</span>' );
+          }
+        });
       });
 
       return false;
@@ -463,15 +474,31 @@ nb.shell = (function() {
     //パブリックメソッド/initModule/開始
     initModule = function( $container ) {
       stateMap.$container = $container;
-      $container.html( configMap.navbar_html );
-      $container.append( configMap.tabs_html);
-      setJqueryMap();
 
-      // クリックハンドラをバインドする
-      jqueryMap.$startSignup
-        .click( onClickSignup );
-      jqueryMap.$login
-        .click( onClickLogin );
+      $.get( "/user/authentication" )
+        .done( function( data ) {
+          if ( data.state === "success" ) {
+            $container.html( configMap.navbar_html );
+          }
+          else {
+            $container.html( configMap.navbar_html );
+            $container.append( configMap.tabs_html);
+            setJqueryMap();
+
+            // クリックハンドラをバインドする
+            jqueryMap.$startSignup
+              .click( onClickSignup );
+            jqueryMap.$login
+              .click( onClickLogin );
+          }
+        })
+        .fail( function( data ) {
+            $container.html( configMap.navbar_html );
+            $container.append( configMap.tabs_html);
+        });
+      // $container.html( configMap.navbar_html );
+      // $container.append( configMap.tabs_html);
+
     };
     //パブリックメソッド/initModule/終了
 

@@ -3,7 +3,9 @@
   "version": "0.0.3",
   "private": true,
   "dependencies": {
+    "connect-redis": "^3.0.2",
     "express": "3.2.x",
+    "express-session": "^1.13.0",
     "mongodb": "^2.1.2"
   }
 }
