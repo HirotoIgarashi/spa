@@ -38,7 +38,10 @@ app.configure( function () {
   app.use( express.session({
     secret            : 'koobetoN',
     cookie            : {
-      maxAge  : 1000*60*60*24*7 // 1 week
+      secure    : true,
+      httpOnly  : false,
+      expires   : new Date(Date.now() + 2 * 604800000)
+      //maxAge    : 1000*60*60*24*7 // 1 week
     },
     store             : new RedisStore({
       host    : 'localhost',
