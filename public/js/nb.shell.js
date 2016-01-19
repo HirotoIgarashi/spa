@@ -9,7 +9,7 @@ regexp  : true, sloppy  : true, vars      : false,
 white   : true
 */
 
-/*global $, nb */
+/*global $, nb, Cookies */
 
 nb.shell = (function() {
   'use strict';
@@ -46,61 +46,97 @@ nb.shell = (function() {
                 + '</div>'
               + '</div>'
             + '</nav>',
+          contents_html: String()
+              + '<span id="contents">'
+              + '</span>',
+          footer_html: String()
+              + '<footer class="footer" style="margin: 5em 0em 1em 0em;">'
+              + '<div class="container" style="padding-left: 0">'
+                + '<div class="row">'
+                  + '<div class="col-md-6">'
+                    + '<div class-"wrapper" style="background-color:#ecf0f1; padding: 1em 2em;">'
+                    + '<h3><strong>Quick Links</strong></h3>'
+                      + '<ul>'
+                        + '<li><a href="#">Home</a></li>'
+                        + '<li><a href="#">Portfolio</a></li>'
+                        + '<li><a href="#">About</a></li>'
+                        + '<li><a href="#">Partners</a></li>'
+                      + '</ul>'
+                    + '</div>'
+                  + '</div>'
+                  + '<div class="col-md-6">'
+                    + '<div class-"wrapper" style="background-color:#ecf0f1; padding: 1em 2em;">'
+                    + '<h3><strong>Follow Us:</strong></h3>'
+                      + '<ul>'
+                        + '<li><a href="#">Facebook</a></li>'
+                        + '<li><a href="#">Twitter</a></li>'
+                        + '<li><a href="#">Instagram</a></li>'
+                        + '<li><a href="#">Youtube</a></li>'
+                      + '</ul>'
+                    + '</div>'
+                  + '</div>'
+                + '</div>'
+                + '</div>'
+                + '<div class="row" style="text-align: center; padding: 1em; margin: 1em 1.3em 1em 1.3em; background-color:#ecf0f1;">'
+                + 'All Right Reserved 2016.'
+                + '</div>'
+              + '</div>'
+              + '</footer>',
           tabs_html: String()
-                + '<ul id="myTabs" class="nav nav-tabs" role="tablist">'
-                  + '<li role="presentation" class="active">'
-                    + '<a href="#home" id="home-tab" role="tab" data-toggle="tab" aria-controls="home" aria-expanded="true">Notebookとは</a>'
-                  + '</li>'
-                  + '<li role="presentation" class="">'
-                    + '<a href="#profile" id="profile-tab" role="tab" data-toggle="tab" aria-controls="profile" aria-expanded="false">マシン構成について</a>'
+              + '<ul id="myTabs" class="nav nav-tabs" role="tablist">'
+                + '<li role="presentation" class="active">'
+                  + '<a href="#home" id="home-tab" role="tab" data-toggle="tab" aria-controls="home" aria-expanded="true">Notebookとは</a>'
                 + '</li>'
-                + '</ul>'
-                + '<div id="myTabContent" class="tab-content">'
-                  + '<div role="tabpanel" class="tab-pane fade active in" id="home" aria-labelledby="home-tab">'
-                    + '<div class="container">'
-                    + '<h2 class="section-title"><strong>Notebookのサービス(予定)</strong></h2>'
-                      + '<div class="row">'
-                        + '<div class="col-md-4">'
-                          + '<div class="service">'
-                          + '<span class="glyphicon glyphicon-calendar" aria-hidden="true"></span>'
-                          + '<h3><strong>カレンダー</strong></h3>'
-                          + '</div>'
+                + '<li role="presentation" class="">'
+                  + '<a href="#profile" id="profile-tab" role="tab" data-toggle="tab" aria-controls="profile" aria-expanded="false">マシン構成について</a>'
+              + '</li>'
+              + '</ul>'
+              + '<div id="myTabContent" class="tab-content">'
+                + '<div role="tabpanel" class="tab-pane fade active in" id="home" aria-labelledby="home-tab">'
+                  + '<div class="container">'
+                  + '<h2 class="section-title"><strong>Notebookのサービス(予定)</strong></h2>'
+                    + '<div class="row">'
+                      + '<div class="col-md-4">'
+                        + '<div class="service">'
+                        + '<span class="glyphicon glyphicon-calendar" aria-hidden="true"></span>'
+                        + '<h3><strong>カレンダー</strong></h3>'
                         + '</div>'
-                        + '<div class="col-md-4">'
-                          + '<div class="service">'
-                          + '<span class="glyphicon glyphicon-list" aria-hidden="true"></span>'
-                          + '<h3><strong>リスト</strong></h3>'
-                          + '</div>'
+                      + '</div>'
+                      + '<div class="col-md-4">'
+                        + '<div class="service">'
+                        + '<span class="glyphicon glyphicon-list" aria-hidden="true"></span>'
+                        + '<h3><strong>リスト</strong></h3>'
                         + '</div>'
-                        + '<div class="col-md-4">'
-                          + '<div class="service">'
-                          + '<span class="glyphicon glyphicon-tasks" aria-hidden="true"></span>'
-                          + '<h3><strong>タスク</strong></h3>'
-                          + '</div>'
+                      + '</div>'
+                      + '<div class="col-md-4">'
+                        + '<div class="service">'
+                        + '<span class="glyphicon glyphicon-tasks" aria-hidden="true"></span>'
+                        + '<h3><strong>タスク</strong></h3>'
                         + '</div>'
                       + '</div>'
                     + '</div>'
                   + '</div>'
-                  + '<div role="tabpanel" class="tab-pane fade" id="profile" aria-labelledby="profile-tab">'
-                    + '<div class="panel panel-default">'
-                    + '<!-- Default panel contents -->'
-                    + '<div class="panel-heading">ソフトウェア</div>'
-                    + '<div class="panel-body">'
-                      + 'Notebookで使用しているライブラリなど'
-                    + '</div>'
-                    + '<!-- List group -->'
-                    + '<ul class="list-group">'
-                      + '<li class="list-group-item">Node.js : サーバサイドで使用しています。</li>'
-                      + '<li class="list-group-item">MongoDB : これもサーバサイドで使用しています。</li>'
-                      + '<li class="list-group-item">Let&#039;s Encrypt : サーバの証明書として利用しています。</li>'
-                      + '<li class="list-group-item">javascript : ブラウザで使用しています。</li>'
-                      + '<li class="list-group-item">jQuery : ブラウザで使用しています。</li>'
-                      + '<li class="list-group-item">Bootstrap : ブラウザで使用しています。</li>'
-                    + '</ul>'
+                + '</div>'
+                + '<div role="tabpanel" class="tab-pane fade" id="profile" aria-labelledby="profile-tab">'
+                  + '<div class="panel panel-default">'
+                  + '<!-- Default panel contents -->'
+                  + '<div class="panel-heading">ソフトウェア</div>'
+                  + '<div class="panel-body">'
+                    + 'Notebookで使用しているライブラリなど'
                   + '</div>'
-                  + '</div>'
-                + '</div>',
-          signup_html: String()
+                  + '<!-- List group -->'
+                  + '<ul class="list-group">'
+                    + '<li class="list-group-item">Node.js : サーバサイドで使用しています。</li>'
+                    + '<li class="list-group-item">MongoDB : これもサーバサイドで使用しています。</li>'
+                    + '<li class="list-group-item">Let&#039;s Encrypt : サーバの証明書として利用しています。</li>'
+                    + '<li class="list-group-item">javascript : ブラウザで使用しています。</li>'
+                    + '<li class="list-group-item">jQuery : ブラウザで使用しています。</li>'
+                    + '<li class="list-group-item">Bootstrap : ブラウザで使用しています。</li>'
+                  + '</ul>'
+                + '</div>'
+                + '</div>'
+              + '</div>',
+          signup_html : String()
               + '<div id="signup">'
                 + '<form id="signupForm" class="nb-shell-form">'
                   + '<div>'
@@ -133,6 +169,12 @@ nb.shell = (function() {
                   + '<span>'
                   + '</span>'
                 + '</form>'
+              + '</div>',
+          signup_confirm_html : String()
+              + '<div class="panel panel-default">'
+                + '<div class="panel-body">'
+                  + '登録が完了しました。ログインしてみてください。'
+                + '</div>'
               + '</div>'
     },
     stateMap = {
@@ -220,7 +262,7 @@ nb.shell = (function() {
       if ( password.val() !== passconf.val() ) {
         return {
           returnCode: false,
-          errorCode: '同じパスワードを入力したください。'
+          errorCode: '同じパスワードを入力してください。'
         };
       }
       return {
@@ -267,6 +309,8 @@ nb.shell = (function() {
 
       jqueryMap = {
         $container    : $container,
+        $contents     : $container.find( '#contents' ),
+        $footer       : $container.find( '#footer' ),
         $myTabs       : $container.find( '#myTabs' ),
         $myTabContent : $container.find( '#myTabContent' ),
         $startSignup  : $container.find( '#startSignup' ),
@@ -281,16 +325,12 @@ nb.shell = (function() {
     //------ イベントハンドラ開始 -----------------
     // 例: onClickButton = ...
     onClickSignup = function() {
-      var $container  = stateMap.$container;
+      var posting;
 
       setJqueryMap();
 
       // サインアップフォームを表示する。
-      jqueryMap.$myTabs.remove();
-      jqueryMap.$myTabContent.remove();
-      jqueryMap.$signupForm.remove();
-      jqueryMap.$loginForm.remove();
-      $container.append( configMap.signup_html);
+      jqueryMap.$contents.html( configMap.signup_html );
 
       // Bind keypress event to textbox
       $('.nb-shell-input').keypress(function(event) {
@@ -361,56 +401,35 @@ nb.shell = (function() {
           passconf  : $('#passconf').val()
         };
 
-        $.ajax({
-          type        : "POST",
-          url         : "user/create",
-          data        : JSON.stringify(form_data),
-          contentType : "application/json",
-          dataType    : "json",
-          success     : function( data, dataType ) {
-            //alert("Data: " + data + "\nStatus: " + dataType );
-            $('#signupButton')
-              .after( '<span>  result code: ' + dataType + ': 登録が完了しました。</span>' );
-            $('#email')
-              .val("")
-              .removeClass('nb-shell-valid')
-              .next('span')
-              .remove();
-            $('#password')
-              .val("")
-              .removeClass('nb-shell-valid')
-              .next('span')
-              .remove();
-            $('#passconf')
-              .val("")
-              .removeClass('nb-shell-valid')
-              .next('span')
-              .remove();
-          },
-          error       : function( data ) {
-            $('#email')
-              .removeClass('nb-shell-valid')
-              .addClass('nb-shell-error')
-              .next('span')
-              .html( '<span>' + data.responseText + '</span>' );
-          }//,
-          //complete    : function() {
-          //}
-        });
+        posting = $.post( "user/create", form_data, "json" );
 
+        posting.done( function( data ) {
+          jqueryMap.$contents.html( configMap.signup_confirm_html );
+          //$('#signup').html( configMap.signup_confirm_html );
+        });
+          
+        posting.fail( function( data ) {
+          $('#email')
+            .removeClass('nb-shell-valid')
+            .addClass('nb-shell-error')
+            .next('span')
+            .html( '<span>' + data.responseText + '</span>' );
+        });
       });
       return false;
     };
 
     onClickLogin = function() {
-      var $container = stateMap.$container;
       setJqueryMap();
 
+      jqueryMap.$contents.html( configMap.login_html );
+      /*
       jqueryMap.$myTabs.remove();
       jqueryMap.$myTabContent.remove();
       jqueryMap.$signupForm.remove();
       jqueryMap.$loginForm.remove();
       $container.append( configMap.login_html);
+      */
 
       $('#loginForm').submit(function( event ) {
         event.preventDefault();
@@ -446,14 +465,52 @@ nb.shell = (function() {
     //------ パブリックメソッド開始 ---------------
     //パブリックメソッド/initModule/開始
     initModule = function( $container ) {
-      stateMap.$container = $container;
+      var authentication_result;
 
+      stateMap.$container = $container;
+      $container.html( configMap.navbar_html );
+      $container.append( configMap.contents_html );
+      $container.append( configMap.footer_html );
+      setJqueryMap();
+
+      // 起動時にCookieがあるか確認する。
+      console.log( Cookies.get() );
       // 起動時にセッションがあるか確認する。
+      authentication_result = $.get( "/user/authentication" );
+
+      authentication_result.done( function( data ) {
+        console.log("result: " + data);
+        if ( data.state === "success" ) {
+          $('#startSignup')
+            .remove();
+          $('#login')
+            .after('<button id="logout" type="button" class="btn btn-default navbar-btn">ログアウト</button>');
+          $('#login')
+            .remove();
+        }
+        else {
+          jqueryMap.$contents.html( configMap.tabs_html);
+          // クリックハンドラをバインドする
+          jqueryMap.$startSignup
+            .click( onClickSignup );
+          jqueryMap.$login
+            .click( onClickLogin );
+        }
+      });
+
+      authentication_result.fail( function( data ) {
+        console.log( "result: " + data );
+        jqueryMap.$contents.html( configMap.tabs_html);
+        // クリックハンドラをバインドする
+        jqueryMap.$startSignup
+          .click( onClickSignup );
+        jqueryMap.$login
+          .click( onClickLogin );
+      });
+      /*
       $.get( "/user/authentication" )
         .done( function( data ) {
           if ( data.state === "success" ) {
-            $container.html( configMap.navbar_html );
-            setJqueryMap();
             $('#startSignup')
               .remove();
             $('#login')
@@ -462,10 +519,7 @@ nb.shell = (function() {
               .remove();
           }
           else {
-            $container.html( configMap.navbar_html );
-            $container.append( configMap.tabs_html);
-            setJqueryMap();
-
+            jqueryMap.$contents.html( configMap.tabs_html);
             // クリックハンドラをバインドする
             jqueryMap.$startSignup
               .click( onClickSignup );
@@ -474,12 +528,14 @@ nb.shell = (function() {
           }
         })
         .fail( function( data ) {
-            $container.html( configMap.navbar_html );
-            $container.append( configMap.tabs_html);
+          jqueryMap.$contents.html( configMap.tabs_html);
+          // クリックハンドラをバインドする
+          jqueryMap.$startSignup
+            .click( onClickSignup );
+          jqueryMap.$login
+            .click( onClickLogin );
         });
-      // $container.html( configMap.navbar_html );
-      // $container.append( configMap.tabs_html);
-
+        */
     };
     //パブリックメソッド/initModule/終了
 

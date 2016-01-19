@@ -52,6 +52,8 @@ configRoutes = function( app, server ) {
   });
 
   app.get( '/user/authentication', function( request, response ) {
+    console.log( "request.session.user: " );
+    console.log( request.session.user );
     if ( request.session.user ) {
       response.send({"state": "success", "email": request.session.user.email });
     }

@@ -40,7 +40,8 @@ app.configure( function () {
     cookie            : {
       secure    : true,
       httpOnly  : false,
-      expires   : new Date(Date.now() + 2 * 604800000)
+      expires   : new Date(Date.now() + 4 * 604800000)
+      //expires   : new Date(Date.now() + 60 * 60)
       //maxAge    : 1000*60*60*24*7 // 1 week
     },
     store             : new RedisStore({

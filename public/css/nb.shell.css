@@ -1,3 +1,21 @@
+.section-title {
+  text-align        : center;
+  margin-top        : 1em;
+  background-color  : #ecf0f1;
+  padding           : .5em 0;
+  border-radius     : .3em;
+}
+
+.service {
+  border-radius     : .3em;
+  background-color  : #34495e;
+  text-align        : center;
+  padding           : 3em 2em 1em 2em;
+  color             : white;
+}
+.service .glyphicon {
+  font-size : 5em;
+}
 label {
   display: block;
 }
