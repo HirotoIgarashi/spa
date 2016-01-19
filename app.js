@@ -19,8 +19,8 @@ var https       = require( 'https' ),
     session     = require( 'express-session' ),
     RedisStore  = require( 'connect-redis' )( session ),
     client      = redis.createClient(),
-    routes      = require( './routes' ),
     app         = express(),
+    routes      = require( './routes' ),
     opts        = {
       key   : fs.readFileSync('key.pem'),
       cert  : fs.readFileSync('cert.pem'),
@@ -48,7 +48,7 @@ app.configure( function () {
       host    : 'localhost',
       port    : 6379,
       client  : client,
-      ttl     : 260
+      disableTTL  : true
     }),
     saveUninitialized : false,
     resave            : false

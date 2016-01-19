@@ -30,10 +30,36 @@ var
   makeMongoId = mongodb.ObjectID,
   objTypeMap  = { 'user': { } };
 
+  //redis       = require( 'redis' ),
+  //session     = require( 'express-session' ),
+  //RedisStore  = require( 'connect-redis' )( session ),
+  //client      = redis.createClient();
+
 //------ モジュールスコープ変数終了 -----------
 
 //------ パブリックメソッド開始 -----------
 configRoutes = function( app, server ) {
+  /*
+  app.configure( function () {
+    app.use( express.cookieParser() );
+    app.use( express.session({
+      secret            : 'koobetoN',
+      cookie            : {
+        secure    : true,
+        httpOnly  : false,
+        expires   : new Date(date.now() + 4 * 604800000)
+      },
+      store             : new RedisStore({
+        host    : 'localhost',
+        port    : 6379,
+        client  : client,
+        ttl     : 260
+      }),
+      saveUninitialized : false,
+      resave            : false
+    }) );
+  } );
+  */
   app.get( '/', function( request, response ) {
     response.redirect( 'index.html' );
   });
