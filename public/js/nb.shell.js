@@ -175,7 +175,11 @@ nb.shell = (function() {
                 + '<div class="panel-body">'
                   + '登録が完了しました。ログインしてみてください。'
                 + '</div>'
-              + '</div>'
+              + '</div>',
+          logout_button_html : String()
+              + '<button id="logout" type="button" class="btn btn-default navbar-btn">'
+                + '<span class="glyphicon glyphicon-off"></span>ログアウト'
+              + '</button>'
     },
     stateMap = {
       $container: null
@@ -325,7 +329,6 @@ nb.shell = (function() {
     //------ イベントハンドラ開始 -----------------
     // 例: onClickButton = ...
     onClickSignup = function() {
-      var posting;
 
       setJqueryMap();
 
@@ -392,18 +395,19 @@ nb.shell = (function() {
       });
 
       $('#signupForm').submit(function( event ) {
+        var posting,
+            form_data = {
+              email     : $('#email').val(),
+              password  : $('#password').val(),
+              passconf  : $('#passconf').val()
+            };
         // Stop form from submitting normally
         event.preventDefault();
 
-        var form_data = {
-          email     : $('#email').val(),
-          password  : $('#password').val(),
-          passconf  : $('#passconf').val()
-        };
 
         posting = $.post( "user/create", form_data, "json" );
 
-        posting.done( function( data ) {
+        posting.done( function() {
           jqueryMap.$contents.html( configMap.signup_confirm_html );
           //$('#signup').html( configMap.signup_confirm_html );
         });
@@ -420,41 +424,33 @@ nb.shell = (function() {
     };
 
     onClickLogin = function() {
+      var login_result;
+
       setJqueryMap();
 
       jqueryMap.$contents.html( configMap.login_html );
-      /*
-      jqueryMap.$myTabs.remove();
-      jqueryMap.$myTabContent.remove();
-      jqueryMap.$signupForm.remove();
-      jqueryMap.$loginForm.remove();
-      $container.append( configMap.login_html);
-      */
 
       $('#loginForm').submit(function( event ) {
-        event.preventDefault();
-
         var form_data = {
           email     : $('#email').val(),
           password  : $('#password').val()
         };
 
-        $.ajax({
-          type        : "POST",
-          url         : "user/login",
-          data        : JSON.stringify( form_data ),
-          contentType : "application/json",
-          dataType    : "json",
-          success     : function( data ) {
+        event.preventDefault();
+
+        login_result = $.post( "user/login", form_data, "json" );
+        login_result.done( function() {
+          initModule( jqueryMap.$container );
+            /*
             $('#loginButton')
               .next('span')
               .html( '<span>  result code: ' + data.email + '</span>' );
-          },
-          error       : function( data ) {
-            $('#loginButton')
-              .next('span')
-              .html( '<span>  result code: ' + data.responseText + '</span>' );
-          }
+              */
+        });
+        login_result.fail( function( data ) {
+          $('#loginButton')
+            .next('span')
+            .html( '<span>  result code: ' + data.responseText + '</span>' );
         });
       });
 
@@ -479,14 +475,23 @@ nb.shell = (function() {
       authentication_result = $.get( "/user/authentication" );
 
       authentication_result.done( function( data ) {
-        console.log("result: " + data);
+        var logout_result;
+
         if ( data.state === "success" ) {
           $('#startSignup')
             .remove();
           $('#login')
-            .after('<button id="logout" type="button" class="btn btn-default navbar-btn">ログアウト</button>');
+            .after( configMap.logout_button_html );
           $('#login')
             .remove();
+          $('#logout').click( function() {
+            logout_result = $.get( "/user/logout" );
+            logout_result.always( function() {
+              initModule( $container );
+            } );
+          } );
+          $('.navbar-header')
+            .after('<div class="nav navbar-nav">' + data.email + 'でログインしています。</div>');
         }
         else {
           jqueryMap.$contents.html( configMap.tabs_html);
@@ -507,35 +512,7 @@ nb.shell = (function() {
         jqueryMap.$login
           .click( onClickLogin );
       });
-      /*
-      $.get( "/user/authentication" )
-        .done( function( data ) {
-          if ( data.state === "success" ) {
-            $('#startSignup')
-              .remove();
-            $('#login')
-              .after('<button id="logout" type="button" class="btn btn-default navbar-btn">ログアウト</button>');
-            $('#login')
-              .remove();
-          }
-          else {
-            jqueryMap.$contents.html( configMap.tabs_html);
-            // クリックハンドラをバインドする
-            jqueryMap.$startSignup
-              .click( onClickSignup );
-            jqueryMap.$login
-              .click( onClickLogin );
-          }
-        })
-        .fail( function( data ) {
-          jqueryMap.$contents.html( configMap.tabs_html);
-          // クリックハンドラをバインドする
-          jqueryMap.$startSignup
-            .click( onClickSignup );
-          jqueryMap.$login
-            .click( onClickLogin );
-        });
-        */
+
     };
     //パブリックメソッド/initModule/終了
 
