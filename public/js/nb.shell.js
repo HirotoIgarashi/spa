@@ -136,6 +136,29 @@ nb.shell = (function() {
                 + '</div>'
                 + '</div>'
               + '</div>',
+          user_html: String()
+              + '<ul id="myTabs" class="nav nav-tabs" role="tablist">'
+                + '<li role="presentation" class="active">'
+                  + '<a href="#home" id="home-tab" role="tab" data-toggle="tab" aria-controls="home" aria-expanded="true">カレンダー</a>'
+                + '</li>'
+                + '<li role="presentation" class="">'
+                  + '<a href="#profile" id="profile-tab" role="tab" data-toggle="tab" aria-controls="profile" aria-expanded="false">リスト</a>'
+              + '</li>'
+                + '<li role="presentation" class="">'
+                  + '<a href="#profile" id="profile-tab" role="tab" data-toggle="tab" aria-controls="profile" aria-expanded="false">タスク</a>'
+              + '</li>'
+              + '</ul>'
+              + '<div id="myTabContent" class="tab-content">'
+                + '<div role="tabpanel" class="tab-pane fade active in" id="home" aria-labelledby="home-tab">'
+                  + '<div class="container">カレンダー'
+                  + '</div>'
+                + '</div>'
+                + '<div role="tabpanel" class="tab-pane fade" id="profile" aria-labelledby="profile-tab">'
+                  + '<div class="panel panel-default">リスト'
+                  + '<!-- Default panel contents -->'
+                  + '</div>'
+                + '</div>'
+              + '</div>',
           signup_html : String()
               + '<div id="signup">'
                 + '<form id="signupForm" class="nb-shell-form">'
@@ -492,6 +515,8 @@ nb.shell = (function() {
           } );
           $('.navbar-header')
             .after('<div class="nav navbar-nav">' + data.email + 'でログインしています。</div>');
+          //$('#contents').append( configMap.user_html );
+          nb.tab.initModule( $('#contents') );
         }
         else {
           jqueryMap.$contents.html( configMap.tabs_html);
