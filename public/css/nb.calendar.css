@@ -7,7 +7,7 @@ a:-webkit-any-link{
   color           : black !important;  /* give links a default color */
 }
 .wrapper {
-  margin      : 10em;
+  margin      : 4em;
   border      : 0.1em solid #ccc;
   width       : 20em;
   height      : 27em;
