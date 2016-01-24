@@ -50,38 +50,13 @@ nb.shell = (function() {
               + '<span id="contents">'
               + '</span>',
           footer_html: String()
-              + '<footer class="footer" style="margin: 5em 0em 1em 0em;">'
-              + '<div class="container" style="padding-left: 0">'
-                + '<div class="row">'
-                  + '<div class="col-md-6">'
-                    + '<div class-"wrapper" style="background-color:#ecf0f1; padding: 1em 2em;">'
-                    + '<h3><strong>Quick Links</strong></h3>'
-                      + '<ul>'
-                        + '<li><a href="#">Home</a></li>'
-                        + '<li><a href="#">Portfolio</a></li>'
-                        + '<li><a href="#">About</a></li>'
-                        + '<li><a href="#">Partners</a></li>'
-                      + '</ul>'
-                    + '</div>'
+                + '<footer class="footer" style="margin: 5em 0em 1em 0em;">'
+                  + '<div class="container" style="padding-left: 0">'
+                    + '<!--'
+                    + '<a rel="license" href="http://creativecommons.org/licenses/by/4.0/"><img alt="クリエイティブ・コモンズ・ライセンス" style="border-width:0" src="https://i.creativecommons.org/l/by/4.0/80x15.png" /></a><br />この 作品 は <a rel="license" href="http://creativecommons.org/licenses/by/4.0/">クリエイティブ・コモンズ 表示 4.0 国際 ライセンスの下に提供されています。</a>'
+                    + '-->'
                   + '</div>'
-                  + '<div class="col-md-6">'
-                    + '<div class-"wrapper" style="background-color:#ecf0f1; padding: 1em 2em;">'
-                    + '<h3><strong>Follow Us:</strong></h3>'
-                      + '<ul>'
-                        + '<li><a href="#">Facebook</a></li>'
-                        + '<li><a href="#">Twitter</a></li>'
-                        + '<li><a href="#">Instagram</a></li>'
-                        + '<li><a href="#">Youtube</a></li>'
-                      + '</ul>'
-                    + '</div>'
-                  + '</div>'
-                + '</div>'
-                + '</div>'
-                + '<div class="row" style="text-align: center; padding: 1em; margin: 1em 1.3em 1em 1.3em; background-color:#ecf0f1;">'
-                + 'All Right Reserved 2016.'
-                + '</div>'
-              + '</div>'
-              + '</footer>',
+                + '</footer>',
           tabs_html: String()
               + '<ul id="myTabs" class="nav nav-tabs" role="tablist">'
                 + '<li role="presentation" class="active">'
@@ -493,7 +468,7 @@ nb.shell = (function() {
       setJqueryMap();
 
       // 起動時にCookieがあるか確認する。
-      console.log( Cookies.get() );
+      //console.log( Cookies.get() );
       // 起動時にセッションがあるか確認する。
       authentication_result = $.get( "/user/authentication" );
 

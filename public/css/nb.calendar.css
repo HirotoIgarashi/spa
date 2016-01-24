@@ -1,0 +1,54 @@
+body {
+  font-family: "Montserrat";  /* just a custom font */
+}
+
+a:-webkit-any-link{
+  text-decoration : none  !important; /* do not underline Links */
+  color           : black !important;  /* give links a default color */
+}
+.wrapper {
+  margin      : 10em;
+  border      : 0.1em solid #ccc;
+  width       : 20em;
+  height      : 27em;
+  box-shadow  : 0.1em 0.2em 0.8em #ccc;
+}
+.header {
+  height            : 4em;
+  background-color  : #3f51b5;
+  color             : white;
+  text-align        : center;
+}
+.calendar-body .col-xs-1 {
+  width       : 2.5em;
+  margin-left : 0.2em;
+  text-align  : center;
+}
+.header p {
+  padding-top     : 1.2em;
+  text-transform  : uppercase;
+}
+.header span {
+  padding : 1.3em;
+}
+.inactive {
+  color : #ccc;
+}
+.weekdays {
+  padding : 1em;
+}
+.dates {
+  padding : 0.2em 1em 0.2em 1em;
+}
+.line {
+  height  : 0.1em;
+  border  : 0.1em solid #EEEEEE;
+}
+.current-date {
+  text-transform  : uppercase;
+  text-align      : center;
+  padding         : 0.7em;
+}
+.calendar-body .row .col-xs-1 p:hover {
+  color : #4778a6;
+}
