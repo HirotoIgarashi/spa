@@ -19,12 +19,15 @@ nb.tab = (function() {
     configMap = {
       tabs_html     : String()
           + '<ul id="myTabs" class="nav nav-tabs" role="tablist">'
-            + '<li role="presentation" class=""><a href="#calendar" id="calendar-tab" role="tab" data-toggle="tab" aria-controls="calendar" aria-expanded="true">Calendar</a></li>'
+            + '<li role="presentation" class=""><a href="#calendar" id="calendar-tab" role="tab" data-toggle="tab" aria-controls="calendar" aria-expanded="true">カレンダー</a></li>'
+            + '<li role="presentation" class=""><a href="#paint" id="paint-tab" role="tab" data-toggle="tab" aria-controls="paint" aria-expanded="true">お絵かき</a></li>'
             + '<li role="presentation" class=""><a href="#task" id="task-tab" role="tab" data-toggle="tab" aria-controls="task" aria-expanded="true">Task</a></li>'
             + '<li role="presentation" class=""><a href="#list" id="list-tab" role="tab" data-toggle="tab" aria-controls="list" aria-expanded="true">List</a></li>'
           + '</ul>'
           + '<div id="myTabContent" class="tab-content">'
             + '<div role="tabpanel" class="tab-pane fade" id="calendar" aria-labelledby="calendar-tab">'
+            + '</div>'
+            + '<div role="tabpanel" class="tab-pane fade" id="paint" aria-labelledby="paint-tab">'
             + '</div>'
             + '<div role="tabpanel" class="tab-pane fade" id="task" aria-labelledby="task-tab">'
             + '</div>'
@@ -58,6 +61,7 @@ nb.tab = (function() {
       jqueryMap = {
         $container  : $container,
         $calendar   : $container.find( '#calendar' ),
+        $paint      : $container.find( '#paint' ),
         $task       : $container.find( '#task' ),
         $list       : $container.find( '#list' )
       };
@@ -105,16 +109,24 @@ nb.tab = (function() {
       setJqueryMap();
 
       $('a[data-toggle="tab"]').on('show.bs.tab', function (e) {
+
         switch ( e.target.id ) {
           case 'calendar-tab':
             nb.calendar.initModule( jqueryMap.$calendar );
             break;
+
+          case 'paint-tab':
+            nb.paint.initModule( jqueryMap.$paint );
+            break;
+
           case 'task-tab':
             nb.task.initModule( jqueryMap.$task );
             break;
+
           case 'list-tab':
             nb.list.initModule( jqueryMap.$list );
             break;
+
         }
       });
 
