@@ -34,7 +34,7 @@ nb.paint = (function() {
             + '<option value="#e1e1e1">Gray</option>'
           + '</select>'
           + '<br/>'
-          + '<canvas id="canvas_area" width="200" height="200">'
+          + '<canvas id="canvas_area" width="500" height="300">'
           + '</canvas>',
       settable_map  : { color_name: true },
       color_name    : 'blue'
@@ -125,28 +125,6 @@ nb.paint = (function() {
     // 戻り値: true
     // 例外発行: なし
     //
-    // 緑の色をセット
-    /*
-    function colorSwitch( key ) {
-      var colorList = {
-        // 'キー(KEY)' : '値(VALUE)'
-        "black"   : "rgba( 0,   0,    0,    1)",
-        "gray"    : "rgba( 192, 192,  192,  1)",
-        "blue"    : "rgba( 0,   0,    255,  1)",
-        "red"     : "rgba( 255, 0,    0,    1)",
-        "magenta" : "rgba( 255, 0,    255,  1)",
-        "green"   : "rgba( 0,   255,  0,    1)",
-        "cyan"    : "rgba( 0,   255,  255,  1)",
-        "yellow"  : "rgba( 255, 255,  0,    1)",
-        "brown"   : "rgba( 153, 51,   0,    1)",
-        "orange"  : "rgba( 255, 128,  0,    1)",
-        "white"   : "rgba( 255, 255,  255,  1)"
-      };
-      // colorList連想配列の値をcolor変数に代入
-      color = colorList[ key ];
-    }
-    */
-
     // 線の太さをセット
     function lineSwitch( key ) {
       bold_line = key.value;
@@ -190,6 +168,7 @@ nb.paint = (function() {
       });
       canvas  = document.getElementById( "canvas_area" );
       context = canvas.getContext( "2d" );
+
       // マウスをクリックしたとき
       canvas.addEventListener( "mousedown", onMousedown, false );
       // マウスが動いているとき
