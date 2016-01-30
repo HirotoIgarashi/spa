@@ -34,7 +34,7 @@ nb.paint = (function() {
             + '<option value="#e1e1e1">Gray</option>'
           + '</select>'
           + '<br/>'
-          + '<canvas id="canvas_area" width="500" height="300">'
+          + '<canvas id="canvas_area" width="500" height="400">'
           + '</canvas>',
       settable_map  : { color_name: true },
       color_name    : 'blue'
@@ -51,7 +51,6 @@ nb.paint = (function() {
     oldX                = 0,
     oldY                = 0,
     pen_color           = "#7bd148",
-    //pen_color           = "rgba( 200, 54, 54, 10)",
     bold_line           = 3,
     onDragstart,
     onDragmove,
@@ -100,11 +99,6 @@ nb.paint = (function() {
       oldX = px;
       oldY = py;
     };
-
-    // マウスボタンを放したときの処理
-    //onDragend = function( e ) {
-    //  canvas_mouse_event = false;
-    //};
 
     //------ イベントハンドラ終了 -----------------
 
@@ -168,13 +162,6 @@ nb.paint = (function() {
       // マウスが動いているとき
       $('#canvas_area')
         .bind( "udragmove.udrag", onDragmove );
-      // マウスボタンを放したとき
-      //$('#canvas_area')
-      //  .bind( "udragend.udrag", onDragend );
-      
-      //canvas.beginPath();
-      //canvas.strokeStyle = "rgb( 200, 0, 0 )";
-      //canvas.strokeRect( 10, 10, 90, 90 );
 
       return true;
     };
