@@ -17,81 +17,6 @@ nb.calendar = (function() {
 
   var
     configMap = {
-      calendar_html : String()
-          + '<div class="wrapper">'
-            + '<div class="header">'
-              + '<span class="glyphicon glyphicon-chevron-left pull-left"></span>'
-              + '<span class="glyphicon glyphicon-chevron-right pull-right"></span>'
-              + '<p></p>'
-            + '</div><!-- end header -->'
-            + '<div class="calendar-body">'
-              + '<div class="row weekdays">'
-                + '<div class="col-xs-1"><p>日</p></div><!-- end col-xs-1 -->'
-                + '<div class="col-xs-1"><p>月</p></div><!-- end col-xs-1 -->'
-                + '<div class="col-xs-1"><p>火</p></div><!-- end col-xs-1 -->'
-                + '<div class="col-xs-1"><p>水</p></div><!-- end col-xs-1 -->'
-                + '<div class="col-xs-1"><p>木</p></div><!-- end col-xs-1 -->'
-                + '<div class="col-xs-1"><p>金</p></div><!-- end col-xs-1 -->'
-                + '<div class="col-xs-1"><p>土</p></div><!-- end col-xs-1 -->'
-              + '</div><!-- end row -->'
-              + '<div class="row dates">'
-                + '<div class="col-xs-1"><a href="#"><p class="inactive">27</p></a></div>'
-                + '<div class="col-xs-1"><a href="#"><p class="inactive">28</p></a></div>'
-                + '<div class="col-xs-1"><a href="#"><p class="inactive">29</p></a></div>'
-                + '<div class="col-xs-1"><a href="#"><p class="inactive">30</p></a></div>'
-                + '<div class="col-xs-1"><a href="#"><p class="inactive">31</p></a></div>'
-                + '<div class="col-xs-1"><a href="#"><p>1</p></a></div>'
-                + '<div class="col-xs-1"><a href="#"><p>2</p></a></div>'
-              + '</div><!-- end row -->'
-              + '<div class="row dates">'
-                + '<div class="col-xs-1"><a href="#"><p>3</p></a></div>'
-                + '<div class="col-xs-1"><a href="#"><p>4</p></a></div>'
-                + '<div class="col-xs-1"><a href="#"><p>5</p></a></div>'
-                + '<div class="col-xs-1"><a href="#"><p>6</p></a></div>'
-                + '<div class="col-xs-1"><a href="#"><p>7</p></a></div>'
-                + '<div class="col-xs-1"><a href="#"><p>8</p></a></div>'
-                + '<div class="col-xs-1"><a href="#"><p>9</p></a></div>'
-              + '</div><!-- end row -->'
-              + '<div class="row dates">'
-                + '<div class="col-xs-1"><a href="#"><p>10</p></a></div>'
-                + '<div class="col-xs-1"><a href="#"><p>11</p></a></div>'
-                + '<div class="col-xs-1"><a href="#"><p>12</p></a></div>'
-                + '<div class="col-xs-1"><a href="#"><p>13</p></a></div>'
-                + '<div class="col-xs-1"><a href="#"><p>14</p></a></div>'
-                + '<div class="col-xs-1"><a href="#"><p>15</p></a></div>'
-                + '<div class="col-xs-1"><a href="#"><p>16</p></a></div>'
-              + '</div><!-- end row -->'
-              + '<div class="row dates">'
-                + '<div class="col-xs-1"><a href="#"><p>17</p></a></div>'
-                + '<div class="col-xs-1"><a href="#"><p>18</p></a></div>'
-                + '<div class="col-xs-1"><a href="#"><p>19</p></a></div>'
-                + '<div class="col-xs-1"><a href="#"><p>20</p></a></div>'
-                + '<div class="col-xs-1"><a href="#"><p>21</p></a></div>'
-                + '<div class="col-xs-1"><a href="#"><p>22</p></a></div>'
-                + '<div class="col-xs-1"><a href="#"><p>23</p></a></div>'
-              + '</div><!-- end row -->'
-              + '<div class="row dates">'
-                + '<div class="col-xs-1"><a href="#"><p>24</p></a></div>'
-                + '<div class="col-xs-1"><a href="#"><p>25</p></a></div>'
-                + '<div class="col-xs-1"><a href="#"><p>26</p></a></div>'
-                + '<div class="col-xs-1"><a href="#"><p>27</p></a></div>'
-                + '<div class="col-xs-1"><a href="#"><p>28</p></a></div>'
-                + '<div class="col-xs-1"><a href="#"><p>29</p></a></div>'
-                + '<div class="col-xs-1"><a href="#"><p>30</p></a></div>'
-              + '</div><!-- end row -->'
-              + '<div class="row dates">'
-                + '<div class="col-xs-1"><a href="#"><p>31</p></a></div>'
-                + '<div class="col-xs-1"><a href="#"><p class="inactive">1</p></a></div>'
-                + '<div class="col-xs-1"><a href="#"><p class="inactive">2</p></a></div>'
-                + '<div class="col-xs-1"><a href="#"><p class="inactive">3</p></a></div>'
-                + '<div class="col-xs-1"><a href="#"><p class="inactive">4</p></a></div>'
-                + '<div class="col-xs-1"><a href="#"><p class="inactive">5</p></a></div>'
-                + '<div class="col-xs-1"><a href="#"><p class="inactive">6</p></a></div>'
-              + '</div><!-- end row -->'
-              + '<div class="line"></div>'
-              + '<div class="current-date"></div>'
-            + '</div><!-- end calendar-body -->'
-          + '</div><!-- end wrapper -->',
       settable_map  : { color_name: true },
       color_name    : 'blue'
     },
@@ -202,14 +127,11 @@ nb.calendar = (function() {
     makeCalendarHtml = function( year, month ) {
       var documnetFragment,
           i,
-          span,
           class_wrapper       = $('<div class="wrapper"></div>'),
           class_header        = $('<div class="header"></div>'),
           class_calendar_body = $('<div class="calendar-body"></div>'),
           class_pager         = $('<ul class="pager"></ul>'),
-          tag_p                   = $('<p></p>'),
           class_row_weekdays  = $('<div class="row weekdays"></div>'),
-          class_col_xs_1      = $('<div class="col-xs-1"><p></p></div>'),
           class_row_dates     = $('<div class="row dates"></div>'),
           class_line          = $('<div class="line"></div>'),
           class_current_date  = $('<div class="current-date"></div>'),
@@ -302,7 +224,8 @@ nb.calendar = (function() {
         event.data.year, event.data.month )
       );
 
-      $('.current-date').append( currentDate.format( 'YYYY年MM月DD日dddd' ) );
+      $('.current-date')
+        .append( currentDate.format( 'YYYY年MM月DD日dddd' ) );
 
       return false;
     };

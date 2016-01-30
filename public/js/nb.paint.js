@@ -48,15 +48,15 @@ nb.paint = (function() {
     initModule,
     canvas,
     context,
-    canvas_mouse_event  = false,
+    canvas_mouse_event  = true,
     oldX                = 0,
     oldY                = 0,
     pen_color           = "#7bd148",
     //pen_color           = "rgba( 200, 54, 54, 10)",
     bold_line           = 3,
-    onMousedown,
-    onMousemove,
-    onMouseup,
+    onTap,
+    onDragmove,
+    onDragend,
     onMouseout;
     //        + '<option value="#7bd148">Green</option>'
     //------ モジュールスコープ変数終了 -----------
@@ -80,14 +80,14 @@ nb.paint = (function() {
     //------ イベントハンドラ開始 -----------------
     // 例: onClickButton = ...
     // マウスをクリックしたときの処理
-    onMousedown = function( e ) {
+    onTap = function( e ) {
       oldX = e.offsetX;
       oldY = e.offsetY;
       canvas_mouse_event = true;
     };
 
     // マウスが動いているときの処理
-    onMousemove = function( e ) {
+    onDragmove = function( e ) {
       if ( canvas_mouse_event === true ) {
         var px = e.offsetX,
             py = e.offsetY;
@@ -105,7 +105,7 @@ nb.paint = (function() {
     };
 
     // マウスボタンを放したときの処理
-    onMouseup = function( e ) {
+    onDragend = function( e ) {
       canvas_mouse_event = false;
     };
 
@@ -170,11 +170,14 @@ nb.paint = (function() {
       context = canvas.getContext( "2d" );
 
       // マウスをクリックしたとき
-      canvas.addEventListener( "mousedown", onMousedown, false );
+      $('#canvas_area').bind( "utap.utap", onTap );
+      //canvas.addEventListener( "utap.utap", onTap, false );
       // マウスが動いているとき
-      canvas.addEventListener( "mousemove", onMousemove, false );
+      $('#canvas_area').bind( "uragmove.udrag", onDragmove );
+      //canvas.addEventListener( "udragmove.udrag", onDragmove, false );
       // マウスボタンを放したとき
-      canvas.addEventListener( "mouseup", onMouseup, false );
+      $('#canvas_area').bind( "udragend.udrag", onDragend );
+      //canvas.addEventListener( "udragend.udrag", onDragend, false );
       // マウスがキャンバス範囲外に出たとき
       canvas.addEventListener( "mouseout", onMouseout, false );
       
