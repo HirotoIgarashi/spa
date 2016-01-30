@@ -48,7 +48,6 @@ nb.paint = (function() {
     initModule,
     canvas,
     context,
-    canvas_mouse_event  = true,
     oldX                = 0,
     oldY                = 0,
     pen_color           = "#7bd148",
@@ -56,8 +55,7 @@ nb.paint = (function() {
     bold_line           = 3,
     onDragstart,
     onDragmove,
-    onDragend;
-    //onMouseout;
+    rect;
     //        + '<option value="#7bd148">Green</option>'
     //------ モジュールスコープ変数終了 -----------
 
@@ -81,33 +79,32 @@ nb.paint = (function() {
     // 例: onClickButton = ...
     // マウスをクリックしたときの処理
     onDragstart = function( e ) {
-      oldX = e.px_start_x;
-      oldY = e.px_start_y - 152;
-      canvas_mouse_event = true;
+      rect = e.target.getBoundingClientRect();
+      
+      oldX = e.px_start_x - rect.left;
+      oldY = e.px_start_y - rect.top;
     };
 
     // マウスが動いているときの処理
     onDragmove = function( e ) {
-      if ( canvas_mouse_event === true ) {
-        var px = e.px_current_x,
-            py = e.px_current_y - 152;
+      var px = e.px_current_x - rect.left,
+          py = e.px_current_y - rect.top;
 
-        context.strokeStyle = pen_color;
-        context.lineWidth   = bold_line;
-        context.beginPath();
-        context.moveTo( oldX, oldY );
-        context.lineTo( px, py );
-        context.closePath();
-        context.stroke();
-        oldX = px;
-        oldY = py;
-      }
+      context.strokeStyle = pen_color;
+      context.lineWidth   = bold_line;
+      context.beginPath();
+      context.moveTo( oldX, oldY );
+      context.lineTo( px, py );
+      context.closePath();
+      context.stroke();
+      oldX = px;
+      oldY = py;
     };
 
     // マウスボタンを放したときの処理
-    onDragend = function( e ) {
-      canvas_mouse_event = false;
-    };
+    //onDragend = function( e ) {
+    //  canvas_mouse_event = false;
+    //};
 
     //------ イベントハンドラ終了 -----------------
 
@@ -172,8 +169,8 @@ nb.paint = (function() {
       $('#canvas_area')
         .bind( "udragmove.udrag", onDragmove );
       // マウスボタンを放したとき
-      $('#canvas_area')
-        .bind( "udragend.udrag", onDragend );
+      //$('#canvas_area')
+      //  .bind( "udragend.udrag", onDragend );
       
       //canvas.beginPath();
       //canvas.strokeStyle = "rgb( 200, 0, 0 )";
