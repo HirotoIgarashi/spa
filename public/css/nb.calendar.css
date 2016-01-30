@@ -28,8 +28,9 @@ a:-webkit-any-link{
   padding-top     : 1.2em;
   text-transform  : uppercase;
 }
-.header span {
+.header ul {
   padding : 1.3em;
+  margin  : 0em;
 }
 .inactive {
   color : #ccc;
