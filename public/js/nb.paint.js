@@ -54,10 +54,10 @@ nb.paint = (function() {
     pen_color           = "#7bd148",
     //pen_color           = "rgba( 200, 54, 54, 10)",
     bold_line           = 3,
-    onTap,
+    onDragstart,
     onDragmove,
-    onDragend,
-    onMouseout;
+    onDragend;
+    //onMouseout;
     //        + '<option value="#7bd148">Green</option>'
     //------ モジュールスコープ変数終了 -----------
 
@@ -80,17 +80,17 @@ nb.paint = (function() {
     //------ イベントハンドラ開始 -----------------
     // 例: onClickButton = ...
     // マウスをクリックしたときの処理
-    onTap = function( e ) {
-      oldX = e.offsetX;
-      oldY = e.offsetY;
+    onDragstart = function( e ) {
+      oldX = e.px_start_x;
+      oldY = e.px_start_y - 152;
       canvas_mouse_event = true;
     };
 
     // マウスが動いているときの処理
     onDragmove = function( e ) {
       if ( canvas_mouse_event === true ) {
-        var px = e.offsetX,
-            py = e.offsetY;
+        var px = e.px_current_x,
+            py = e.px_current_y - 152;
 
         context.strokeStyle = pen_color;
         context.lineWidth   = bold_line;
@@ -109,10 +109,6 @@ nb.paint = (function() {
       canvas_mouse_event = false;
     };
 
-    // マウスがキャンパス範囲外に出たときの処理
-    onMouseout = function( e ) {
-      canvas_mouse_event = false;
-    };
     //------ イベントハンドラ終了 -----------------
 
     //------ パブリックメソッド開始 ---------------
@@ -170,16 +166,14 @@ nb.paint = (function() {
       context = canvas.getContext( "2d" );
 
       // マウスをクリックしたとき
-      $('#canvas_area').bind( "utap.utap", onTap );
-      //canvas.addEventListener( "utap.utap", onTap, false );
+      $('#canvas_area')
+        .bind( "udragstart.udrag", onDragstart );
       // マウスが動いているとき
-      $('#canvas_area').bind( "uragmove.udrag", onDragmove );
-      //canvas.addEventListener( "udragmove.udrag", onDragmove, false );
+      $('#canvas_area')
+        .bind( "udragmove.udrag", onDragmove );
       // マウスボタンを放したとき
-      $('#canvas_area').bind( "udragend.udrag", onDragend );
-      //canvas.addEventListener( "udragend.udrag", onDragend, false );
-      // マウスがキャンバス範囲外に出たとき
-      canvas.addEventListener( "mouseout", onMouseout, false );
+      $('#canvas_area')
+        .bind( "udragend.udrag", onDragend );
       
       //canvas.beginPath();
       //canvas.strokeStyle = "rgb( 200, 0, 0 )";
