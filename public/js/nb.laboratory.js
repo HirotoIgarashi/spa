@@ -1,6 +1,6 @@
 /*
- * nb.task.js
- * ブラウザ機能モジュールのテンプレート
+ * nb.laboratory.js
+ * 研究室
  */
 /*jslint          browser : true, continue  : true,
 devel   : true, indent  : 2,    maxerr    : 50,
@@ -11,7 +11,7 @@ white   : true
 
 /*global $, nb */
 
-nb.task = (function() {
+nb.laboratory = (function() {
 
   //------ モジュールスコープ変数開始 -----------
 
@@ -26,7 +26,8 @@ nb.task = (function() {
     jqueryMap = {},
     setJqueryMap,
     configModule,
-    initModule;
+    initModule,
+    makeHtml;
 
     //------ モジュールスコープ変数終了 -----------
 
@@ -36,6 +37,18 @@ nb.task = (function() {
     //------ ユーティリティメソッド終了 -----------
 
     //------ DOMメソッド開始 ----------------------
+    //DOMメソッド/makeHtml/開始
+    makeHtml = function() {
+      var documentFragment;
+
+      documentFragment = $( document.createDocumentFragment() );
+      
+      $( '<h1>Hello HTML!</h1>' )
+        .appendTo( documentFragment );
+
+      return documentFragment;
+    };
+    //DOMメソッド/makeHtml/終了
     //DOMメソッド/setJqueryMap/開始
 
     setJqueryMap = function() {
@@ -82,7 +95,8 @@ nb.task = (function() {
       stateMap.container = $container;
       setJqueryMap();
 
-      jqueryMap.$container.html( '<h1>Hello Task</h1>' );
+      jqueryMap.$container.html( makeHtml() );
+
       return true;
     };
     //パブリックメソッド/initModule/終了

@@ -6,8 +6,13 @@ a:-webkit-any-link{
   text-decoration : none  !important; /* do not underline Links */
   color           : black !important;  /* give links a default color */
 }
+
+div#calendar {
+  /*display: flex;*/
+}
+
 .wrapper {
-  margin      : 1em;
+  margin      : 0.5em;
   border      : 0.1em solid #ccc;
   width       : 20em;
   height      : 27em;
@@ -52,4 +57,8 @@ a:-webkit-any-link{
 }
 .calendar-body .row .col-xs-1 p:hover {
   color : #4778a6;
+}
+
+.form-horizontal {
+  margin      : 0.5em;
 }

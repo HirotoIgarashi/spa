@@ -23,6 +23,7 @@ nb.tab = (function() {
             + '<li role="presentation" class=""><a href="#paint" id="paint-tab" role="tab" data-toggle="tab" aria-controls="paint" aria-expanded="true">お絵かき</a></li>'
             + '<li role="presentation" class=""><a href="#task" id="task-tab" role="tab" data-toggle="tab" aria-controls="task" aria-expanded="true">Task</a></li>'
             + '<li role="presentation" class=""><a href="#list" id="list-tab" role="tab" data-toggle="tab" aria-controls="list" aria-expanded="true">List</a></li>'
+            + '<li role="presentation" class=""><a href="#laboratory" id="laboratory-tab" role="tab" data-toggle="tab" aria-controls="laboratory" aria-expanded="true">研究室</a></li>'
           + '</ul>'
           + '<div id="myTabContent" class="tab-content">'
             + '<div role="tabpanel" class="tab-pane fade" id="calendar" aria-labelledby="calendar-tab">'
@@ -32,6 +33,8 @@ nb.tab = (function() {
             + '<div role="tabpanel" class="tab-pane fade" id="task" aria-labelledby="task-tab">'
             + '</div>'
             + '<div role="tabpanel" class="tab-pane fade" id="list" aria-labelledby="list-tab">'
+            + '</div>'
+            + '<div role="tabpanel" class="tab-pane fade" id="laboratory" aria-labelledby="laboratory-tab">'
             + '</div>'
           + '</div>',
       settable_map  : { color_name: true },
@@ -63,7 +66,8 @@ nb.tab = (function() {
         $calendar   : $container.find( '#calendar' ),
         $paint      : $container.find( '#paint' ),
         $task       : $container.find( '#task' ),
-        $list       : $container.find( '#list' )
+        $list       : $container.find( '#list' ),
+        $laboratory : $container.find( '#laboratory' )
       };
     };
     //DOMメソッド/setJqueryMap/終了
@@ -125,6 +129,10 @@ nb.tab = (function() {
 
           case 'list-tab':
             nb.list.initModule( jqueryMap.$list );
+            break;
+
+          case 'laboratory-tab':
+            nb.laboratory.initModule( jqueryMap.$laboratory );
             break;
 
         }
