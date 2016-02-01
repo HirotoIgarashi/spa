@@ -129,6 +129,7 @@ nb.calendar = (function() {
     makeCalendarHtml = function( year, month ) {
       var documnetFragment,
           i,
+          class_col_sm_2      = $('<div class="col-sm-2"></div>'),
           class_wrapper       = $('<div class="wrapper"></div>'),
           class_header        = $('<div class="header"></div>'),
           class_calendar_body = $('<div class="calendar-body"></div>'),
@@ -203,8 +204,9 @@ nb.calendar = (function() {
 
       class_header.appendTo( class_wrapper );
       class_calendar_body.appendTo( class_wrapper );
+      class_wrapper.appendTo( class_col_sm_2 );
 
-      class_wrapper.appendTo( documnetFragment );
+      class_col_sm_2.appendTo( documnetFragment );
 
       return documnetFragment;
     };
@@ -212,6 +214,7 @@ nb.calendar = (function() {
     //DOMメソッド/makeEventForm/開始
     makeEventForm = function() {
       var documnetFragment,
+          class_col_sm_10    = $('<div class="col-sm-10"></div>'),
           horizontalForm    = $('<form class="form-horizontal"></form>'),
           form_group_name   = $('<div class="form-group"></div>'),
           form_group_date   = $('<div class="form-group"></div>'),
@@ -247,9 +250,10 @@ nb.calendar = (function() {
       form_group_date.clone().appendTo( horizontalForm );
       form_group_place.clone().appendTo( horizontalForm );
       form_group_submit.clone().appendTo( horizontalForm );
-      
 
-      $( horizontalForm ).appendTo( documnetFragment );
+      horizontalForm.clone().appendTo( class_col_sm_10 );
+
+      $( class_col_sm_10 ).appendTo( documnetFragment );
 
       return documnetFragment;
     };
@@ -260,8 +264,11 @@ nb.calendar = (function() {
       var $container = stateMap.container;
 
       jqueryMap = {
-        $container: $container,
-        $wrapper: $container.find( '.wrapper' )
+        $container        : $container,
+        $fluid            : $container.find( '.container-fluid' ),
+        $row              : $container.find( '#row' ),
+        $wrapper          : $container.find( '.wrapper' ),
+        $form_horizontal  : $container.find( '.form-horizontal' )
       };
     };
     //DOMメソッド/setJqueryMap/終了
@@ -272,7 +279,7 @@ nb.calendar = (function() {
     onClickButton= function( event ) {
       var currentDate = getCurrentDate();
 
-      jqueryMap.$container.html( makeCalendarHtml(
+      jqueryMap.$row.html( makeCalendarHtml(
         event.data.year, event.data.month )
       );
 
@@ -286,12 +293,16 @@ nb.calendar = (function() {
 
     // onTapDate
     onTapDate = function( event ) {
-      jqueryMap.$wrapper
-        .before(
-          makeEventForm(event.data.year,
-                        event.data.month,
-                        event.data.date )
-        );
+      if ( jqueryMap.$form_horizontal.length === 0 ) {
+        jqueryMap.$row
+          .append(
+            makeEventForm(event.data.year,
+                          event.data.month,
+                          event.data.date )
+          );
+      }
+
+      setJqueryMap();
     };
     //------ イベントハンドラ終了 -----------------
 
@@ -329,17 +340,19 @@ nb.calendar = (function() {
       var currentDate = getCurrentDate();
 
       stateMap.container = $container;
-      setJqueryMap();
-
-      jqueryMap.$container.html( makeCalendarHtml(
-        currentDate.format( 'YYYY' ),
-        currentDate.format( 'MM' )
-        )
-      );
+      $container
+        .append( $('<div class="container-fluid"><div id="row" class="row"></div></div>') );
 
       setJqueryMap();
 
-      $('.current-date').append( currentDate.format( 'YYYY年MM月DD日dddd' ) );
+      jqueryMap.$row
+        .append( makeCalendarHtml(
+          currentDate.format( 'YYYY' ),
+          currentDate.format( 'MM' )
+        ) );
+
+      $('.current-date')
+        .append( currentDate.format( 'YYYY年MM月DD日dddd' ) );
 
       return true;
     };
