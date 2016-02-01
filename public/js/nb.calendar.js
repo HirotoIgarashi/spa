@@ -340,16 +340,17 @@ nb.calendar = (function() {
       var currentDate = getCurrentDate();
 
       stateMap.container = $container;
-      $container
-        .append( $('<div class="container-fluid"><div id="row" class="row"></div></div>') );
 
-      setJqueryMap();
-
-      jqueryMap.$row
-        .append( makeCalendarHtml(
-          currentDate.format( 'YYYY' ),
-          currentDate.format( 'MM' )
-        ) );
+      if ($container.find('.container-fluid').length === 0) {
+        $container
+          .append( $('<div class="container-fluid"><div id="row" class="row"></div></div>') );
+        setJqueryMap();
+        jqueryMap.$row
+          .append( makeCalendarHtml(
+            currentDate.format( 'YYYY' ),
+            currentDate.format( 'MM' )
+          ) );
+      }
 
       $('.current-date')
         .append( currentDate.format( 'YYYY年MM月DD日dddd' ) );

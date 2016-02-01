@@ -26,7 +26,8 @@ nb.module = (function() {
     jqueryMap = {},
     setJqueryMap,
     configModule,
-    initModule;
+    initModule,
+    makeHTML;
 
     //------ モジュールスコープ変数終了 -----------
 
@@ -36,6 +37,15 @@ nb.module = (function() {
     //------ ユーティリティメソッド終了 -----------
 
     //------ DOMメソッド開始 ----------------------
+    //DOMメソッド/makeHTML/開始
+    makeHTML = function() {
+      var documentFragment;
+
+      documentFragment = $( document.createDocumentFragment() );
+
+      return documentFragment;
+    };
+    //DOMメソッド/makeHTML/終了
     //DOMメソッド/setJqueryMap/開始
 
     setJqueryMap = function() {
@@ -81,6 +91,8 @@ nb.module = (function() {
     initModule = function( $container ) {
       stateMap.container = $container;
       setJqueryMap();
+
+      jqueryMap.$container.html( makeHTML() );
       return true;
     };
     //パブリックメソッド/initModule/終了
