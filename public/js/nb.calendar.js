@@ -350,10 +350,10 @@ nb.calendar = (function() {
             currentDate.format( 'YYYY' ),
             currentDate.format( 'MM' )
           ) );
+        $('.current-date')
+          .append( currentDate.format( 'YYYY年MM月DD日dddd' ) );
       }
 
-      $('.current-date')
-        .append( currentDate.format( 'YYYY年MM月DD日dddd' ) );
 
       return true;
     };

@@ -20,10 +20,10 @@ var https       = require( 'https' ),
     RedisStore  = require( 'connect-redis' )( session ),
     client      = redis.createClient(),
     app         = express(),
-    routes      = require( './routes' ),
+    routes      = require( './lib/routes' ),
     opts        = {
-      key   : fs.readFileSync('key.pem'),
-      cert  : fs.readFileSync('cert.pem'),
+      key   : fs.readFileSync( 'key.pem' ),
+      cert  : fs.readFileSync( 'cert.pem' ),
       NPNProtocols  : ['http/2.0', 'spdy', 'http/1.1']
     },
     server      = https.createServer( opts, app );

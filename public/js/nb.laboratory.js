@@ -16,6 +16,24 @@ nb.laboratory = (function() {
   //------ モジュールスコープ変数開始 -----------
 
   var
+    list_html = String()
+      + '<div class="container">'
+        + '<h1>武器を選択してください</h1>'
+        + '<p>'
+        + 'あなたのキャラクターの詳細情報を調べるために下にある選択肢の1つをクリックしてください。'
+        + '</p>'
+        + '<ul id="myList">'
+          + '<li data-description="王国内でもっとも強いゴブリン">'
+          + 'ルド</li>'
+          + '<li data-description="大小関わらずすべてのゴブリンの支配者">'
+          + 'ゴブリンの王ジャレス</li>'
+          + '<li data-description="ゴブリンの王に待ったをかけられる唯一の人">'
+          + 'サラ</li>'
+          + '<li data-description="ゴブリン王国の称賛されていない英雄">'
+          + 'ホグル</li>'
+        + '</ul>'
+        + '<p id="displayTarg" class="well"></p>'
+      + '</div> <!-- /container -->',
     configMap = {
       settable_map  : { color_name: true },
       color_name    : 'blue'
@@ -42,9 +60,21 @@ nb.laboratory = (function() {
       var documentFragment;
 
       documentFragment = $( document.createDocumentFragment() );
+
+      documentFragment.append( $('<h2>WebSocketテスト</h2><div id="output"></div>') );
+
+      documentFragment.append( $( '<form name="dateSelection">出発日を入力してください: <input type="date" name="departingDate" /></form>' ) );
       
-      $( '<h1>Hello HTML!</h1>' )
-        .appendTo( documentFragment );
+      documentFragment.append( $( '<form name="myForm">靴のサイズ: <input type="range" name="shoeSize" min="0" max="15" step=".5" value="3" /><input type="submit" /></form>' ) );
+
+      documentFragment.append( $( '<form name="myForm">30%: <meter value="3" min="0" max="10"></meter><br />30%: <meter value="0.3" low="0.4">30%</meter></form>' ) );
+      documentFragment.append( $( '<form name="myForm">ダウンロード進捗状況: <progress value="35" max="100"></progress></form>' ) );
+      documentFragment.append( $( '<input id="myInput" type="text" placeholder="テキストを入力">' ) );
+
+      documentFragment
+        .append( $( '<form name="newForm">1から5の数を何でもいいので入力してください。<input type="number" name="quantity" min="1" max="5" /><br /><input type="submit" name="mySubmit" /></form>' ) );
+
+      documentFragment.append (list_html);
 
       return documentFragment;
     };
@@ -64,6 +94,40 @@ nb.laboratory = (function() {
     //------ イベントハンドラ終了 -----------------
 
     //------ パブリックメソッド開始 ---------------
+    //パブリックメソッド/WebSocketDemo/開始
+    WebSocketDemo = function() {
+      return {
+        ws      : null,
+        init    : function( url ) {
+          this.ws = new WebSocket( url );
+          this.onOpen();
+          this.onMessage();
+          this.onClose();
+        },
+
+        onOpen  : function() {
+          this.ws.onopen = function( evt ) {
+            console.log( '接続: ' + evt.type );
+            WebSocketDemo.ws.send( 'html5 hacks' );
+          };
+        },
+
+        onClose : function() {
+          this.ws.onclose = function( evt ) {
+            console.log( '接続終了: ' + evt.type );
+          };
+        },
+
+        onMessage : function( msg ) {
+          this.ws.onmessage = function( evt ) {
+            console.log( 'レスポンス: ' + ' : ' + evt.data );
+            WebSocketDemo.ws.close();
+          };
+        }
+      }
+    }();
+    //パブリックメソッド/WebSocketDemo/終了
+
     //パブリックメソッド/configModule/開始
     // 目的: 許可されたキーの構成を調整する
     // 引数: 設定可能なキーバリューマップ
@@ -92,10 +156,37 @@ nb.laboratory = (function() {
     // 例外発行: なし
     //
     initModule = function( $container ) {
+      var mainElement,
+          descriptionTarget,
+          description;
+
       stateMap.container = $container;
       setJqueryMap();
 
       jqueryMap.$container.html( makeHtml() );
+
+      document.getElementById('myInput')
+        .addEventListener('input', function( e ) {
+          console.log( "次の入力をしました:", e.target );
+        }, false );
+
+      document.newForm.quantity.addEventListener('input', function( e ) {
+          this.checkValidity()
+        }, false );
+
+      document.newForm.quantity.addEventListener('invalid', function( e ) {
+          alert('選んだ数は1と5の間である必要があります。あなたは、' + this.value + ' を選びました。')
+        }, false );
+
+      mainElement = document.getElementById('myList');
+      descriptionTarget = document.getElementById('displayTarg');
+
+      mainElement.addEventListener( 'click', function( e ) {
+        var description = e.target.getAttribute('data-description');
+        descriptionTarget.innerHTML = description;
+      }, false );
+
+      WebSocketDemo.init("wss://echo.websocket.org/");
 
       return true;
     };

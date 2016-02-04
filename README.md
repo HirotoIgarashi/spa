@@ -7,3 +7,4 @@ $ bower install angular
 $ bower install angular-route
 
 $ sudo apt-get install mongodb
+$ npm install ws --save
