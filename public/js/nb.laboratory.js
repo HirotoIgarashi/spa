@@ -158,7 +158,14 @@ nb.laboratory = (function() {
     initModule = function( $container ) {
       var mainElement,
           descriptionTarget,
-          description;
+          description,
+          socket = io.connect('localhost:443');
+
+      socket.on('connect', function() {
+        socket.emit('foo', 1);
+        console.log( "socket done!" );
+      });
+
 
       stateMap.container = $container;
       setJqueryMap();
@@ -187,6 +194,7 @@ nb.laboratory = (function() {
       }, false );
 
       WebSocketDemo.init("wss://echo.websocket.org/");
+      //WebSocketDemo.init("wss://localhost/");
 
       return true;
     };

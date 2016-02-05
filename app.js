@@ -64,7 +64,7 @@ routes.configRoutes( app, server );
 server.listen( 443 );
 console.log(
   'Express server listening on port %d in %s mode',
-  //server.address().port, app.settings.env
   server.address().port, app.settings.env
+  //server.address(), app.settings.env
 );
 // ----------------- サーバ起動終了 -------------------------------

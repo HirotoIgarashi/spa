@@ -13,6 +13,7 @@ white   : true
 
 var nb = (function() {
   var initModule = function( $container ) {
+    nb.model.initModule();
     nb.shell.initModule( $container );
   };
 
