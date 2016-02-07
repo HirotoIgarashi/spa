@@ -191,18 +191,19 @@ nb.calendar = (function() {
           row_dates.appendTo( class_calendar_body );
         }
         if ( date_list[i].format( 'MM' ) === month ) {
-          $('<div class="col-xs-1"><p>' + date_list[i].format( 'DD' ) + '</p></div>')
+          $('<div class="col-xs-1" data-date="' + date_list[i].format('YYYY-MM-DD') + '"><p>' + date_list[i].format( 'DD' ) + '</p></div>')
             .bind( 'utap', { year: year, month: month, date: date_list[i].format( 'DD' ) }, onTapDate )
             .appendTo( row_dates );
         } else {
           $('<div class="col-xs-1"><p class="inactive">' + date_list[i].format( 'DD' ) + '</p></div>')
-            .bind( 'utap', { year: year, month: month, date: date_list[i].format( 'DD' ) }, onTapDate )
             .appendTo( row_dates );
         }
       }
 
       class_line.appendTo( class_calendar_body );
       class_current_date.appendTo( class_calendar_body );
+      //class_calendar_body
+      //  .bind( 'utap', onTapDate )
 
       class_header.appendTo( class_wrapper );
       class_calendar_body.appendTo( class_wrapper );
@@ -214,7 +215,7 @@ nb.calendar = (function() {
     };
     //DOMメソッド/makeCalendarHtml/終了
     //DOMメソッド/makeEventForm/開始
-    makeEventForm = function() {
+    makeEventForm = function( dateData ) {
       var documnetFragment,
           class_col_sm_8    = $('<div class="col-sm-8"></div>'),
           horizontalForm    = $('<form id="addEventForm" class="form-horizontal"></form>'),
@@ -235,7 +236,7 @@ nb.calendar = (function() {
       // 日時
       $('<label for="startDate" class="col-sm-2 control-label">日時:</label>')
         .appendTo( form_group_date );
-      $('<div class="col-sm-10"><input type="text" class="form-control" id="startDate" placefolder="日時"/></div>')
+      $('<div class="col-sm-10"><input type="text" class="form-control" id="startDate" placefolder="日時" value="' + dateData + '"/></div>')
         .appendTo( form_group_date );
 
       // 場所
@@ -301,14 +302,13 @@ nb.calendar = (function() {
 
     // onTapDate
     onTapDate = function( event ) {
-      if ( jqueryMap.$form_horizontal.length === 0 ) {
-        jqueryMap.$row
-          .append(
-            makeEventForm(event.data.year,
-                          event.data.month,
-                          event.data.date )
-          );
+      if ( jqueryMap.$form_horizontal.length !== 0 ) {
+        jqueryMap.$form_horizontal.remove();
       }
+      jqueryMap.$row
+        .append(
+          makeEventForm( event.target.getAttribute( 'data-date' ) )
+          );
 
       setJqueryMap();
     };
