@@ -25,7 +25,7 @@ nb.model = (function() {
       people_db       : TAFFY(),
       user            : null
     },
-    isFakeData = true,
+    isFakeData = false,
     personProto,
     makeCid,
     //clearPeopleDb,
@@ -33,6 +33,8 @@ nb.model = (function() {
     makePerson,
     removePerson,
     people,
+    event,
+    eventCreateResult,
     initModule;
 
   personProto = {
@@ -184,6 +186,46 @@ nb.model = (function() {
     };
   }());
 
+  event = (function () {
+    var create,
+        read,
+        update,
+        destroy;
+
+    create  = function ( event_map ) {
+      var sio = nb.data.getSio();
+
+      sio.on( 'eventcreate', eventCreateResult );
+
+      sio.emit( 'createevent', event_map );
+    };
+
+    read    = function ( event_map ) {
+      console.log( event_map );
+    };
+
+    update  = function ( event_map ) {
+      console.log( event_map );
+    };
+
+    destroy = function ( event_map ) {
+      console.log( event_map );
+    };
+
+    return {
+      create  : create,
+      read    : read,
+      update  : update,
+      destroy : destroy
+    };
+  }());
+
+  eventCreateResult = function ( result_list ) {
+    var result_map = result_list[ 0 ];
+
+    $.gevent.publish( 'event-create-result', result_map );
+  };
+
   //パブリックメソッド/initModule/開始
   initModule = function () {
     var i,
@@ -218,7 +260,8 @@ nb.model = (function() {
   //パブリックメソッドを返す
   return {
     initModule  : initModule,
-    people      : people
+    people      : people,
+    event       : event
   };
   //------ パブリックメソッド終了 ---------------
 }());

@@ -56,7 +56,7 @@ nb.fake = (function() {
         setTimeout( function () {
           callback_map.userupdate(
             [{
-              id : makeFakeId(),
+              _id : makeFakeId(),
               first_name  : data.first_name,
               last_name   : data.last_name,
               email       : data.email,

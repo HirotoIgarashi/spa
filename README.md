@@ -3,8 +3,9 @@ Single Page Web Application
 # bowerのインストール
 
 $ npm install -g bower
-$ bower install angular
-$ bower install angular-route
-
 $ sudo apt-get install mongodb
-$ npm install ws --save
+$ npm install hotnode
+
+# 起動
+
+$ DEBUG=socket.io:* authbind --deep hotnode app.js

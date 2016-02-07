@@ -38,7 +38,9 @@ nb.calendar = (function() {
     makeCalendarHtml,
     makeEventForm,
     onClickButton,
-    onTapDate;
+    onTapDate,
+    onTapAddEvent,
+    receiveResult;
 
     //------ モジュールスコープ変数終了 -----------
 
@@ -129,7 +131,7 @@ nb.calendar = (function() {
     makeCalendarHtml = function( year, month ) {
       var documnetFragment,
           i,
-          class_col_sm_2      = $('<div class="col-sm-2"></div>'),
+          class_col_sm_4      = $('<div class="col-sm-4"></div>'),
           class_wrapper       = $('<div class="wrapper"></div>'),
           class_header        = $('<div class="header"></div>'),
           class_calendar_body = $('<div class="calendar-body"></div>'),
@@ -204,9 +206,9 @@ nb.calendar = (function() {
 
       class_header.appendTo( class_wrapper );
       class_calendar_body.appendTo( class_wrapper );
-      class_wrapper.appendTo( class_col_sm_2 );
+      class_wrapper.appendTo( class_col_sm_4 );
 
-      class_col_sm_2.appendTo( documnetFragment );
+      class_col_sm_4.appendTo( documnetFragment );
 
       return documnetFragment;
     };
@@ -214,8 +216,8 @@ nb.calendar = (function() {
     //DOMメソッド/makeEventForm/開始
     makeEventForm = function() {
       var documnetFragment,
-          class_col_sm_10    = $('<div class="col-sm-10"></div>'),
-          horizontalForm    = $('<form class="form-horizontal"></form>'),
+          class_col_sm_8    = $('<div class="col-sm-8"></div>'),
+          horizontalForm    = $('<form id="addEventForm" class="form-horizontal"></form>'),
           form_group_name   = $('<div class="form-group"></div>'),
           form_group_date   = $('<div class="form-group"></div>'),
           form_group_place  = $('<div class="form-group"></div>'),
@@ -224,26 +226,26 @@ nb.calendar = (function() {
       documnetFragment = $( document.createDocumentFragment() );
 
       // イベント名
-      $('<label for="inputEventName" class="col-sm-4 control-label">イベント名:</label>')
+      $('<label for="name" class="col-sm-2 control-label">イベント名:</label>')
         .appendTo( form_group_name );
 
-      $('<div class="col-sm-8"><input type="text" class="form-control" id="inputEventName" placefolder="イベント名"/></div>')
+      $('<div class="col-sm-10"><input type="text" class="form-control" id="name" placefolder="イベント名" required/></div>')
         .appendTo( form_group_name );
 
       // 日時
-      $('<label for="inputStartDate" class="col-sm-4 control-label">日時:</label>')
+      $('<label for="startDate" class="col-sm-2 control-label">日時:</label>')
         .appendTo( form_group_date );
-      $('<div class="col-sm-8"><input type="text" class="form-control" id="inputStartDate" placefolder="日時"/></div>')
+      $('<div class="col-sm-10"><input type="text" class="form-control" id="startDate" placefolder="日時"/></div>')
         .appendTo( form_group_date );
 
       // 場所
-      $('<label for="inputPlace" class="col-sm-4 control-label">場所:</label>')
+      $('<label for="location" class="col-sm-2 control-label">場所:</label>')
         .appendTo( form_group_place );
-      $('<div class="col-sm-8"><input type="text" class="form-control" id="inputPlace" placefolder="場所"/></div>')
+      $('<div class="col-sm-10"><input type="text" class="form-control" id="location" placefolder="場所"/></div>')
         .appendTo( form_group_place );
 
       // Submit
-      $('<div class="col-sm-offset-4 col-sm-8"><button type="submit" class="btn btn-default">保存</buttondiv>')
+      $('<div class="col-sm-offset-2 col-sm-10"><button id="addEventButton" submit" class="btn btn-default">保存</buttondiv>')
         .appendTo( form_group_submit );
 
       form_group_name.clone().appendTo( horizontalForm );
@@ -251,9 +253,14 @@ nb.calendar = (function() {
       form_group_place.clone().appendTo( horizontalForm );
       form_group_submit.clone().appendTo( horizontalForm );
 
-      horizontalForm.clone().appendTo( class_col_sm_10 );
 
-      $( class_col_sm_10 ).appendTo( documnetFragment );
+      horizontalForm
+        .submit( onTapAddEvent )
+        .clone( true )
+        .appendTo( class_col_sm_8 );
+      $('<div id="result-text"/>').appendTo( class_col_sm_8 );
+
+      $( class_col_sm_8 ).appendTo( documnetFragment );
 
       return documnetFragment;
     };
@@ -268,7 +275,8 @@ nb.calendar = (function() {
         $fluid            : $container.find( '.container-fluid' ),
         $row              : $container.find( '#row' ),
         $wrapper          : $container.find( '.wrapper' ),
-        $form_horizontal  : $container.find( '.form-horizontal' )
+        $form_horizontal  : $container.find( '.form-horizontal' ),
+        $result_text      : $container.find( '#result-text' )
       };
     };
     //DOMメソッド/setJqueryMap/終了
@@ -303,6 +311,29 @@ nb.calendar = (function() {
       }
 
       setJqueryMap();
+    };
+    // onTapAddEvent
+    onTapAddEvent = function( event ) {
+      var event_map = {
+            name      : $('#name').val(),
+            startDate : $('#startDate').val(),
+            location  : $('#location').val()
+          };
+
+      event.preventDefault();
+
+      nb.model.event.create( event_map );
+
+      return false;
+    };
+
+    receiveResult = function ( event, result ) {
+      if ( result.error_msg ) {
+        jqueryMap.$result_text.text( result.error_msg );
+      }
+      else {
+        jqueryMap.$result_text.text( result.result.ok );
+      }
     };
     //------ イベントハンドラ終了 -----------------
 
@@ -354,6 +385,7 @@ nb.calendar = (function() {
           .append( currentDate.format( 'YYYY年MM月DD日dddd' ) );
       }
 
+      $.gevent.subscribe( $container, 'event-create-result', receiveResult );
 
       return true;
     };
