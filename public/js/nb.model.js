@@ -23,18 +23,21 @@ nb.model = (function() {
       cid_serial      : 0,
       people_cid_map  : {},
       people_db       : TAFFY(),
-      user            : null
+      user            : null,
+      person          : null,
+      event           : {}
     },
     isFakeData = false,
     personProto,
     makeCid,
-    //clearPeopleDb,
     completeLogin,
     makePerson,
     removePerson,
     people,
+    person,
+    userCreateComplete,
     event,
-    eventCreateResult,
+    _publish_eventlistread,
     initModule;
 
   personProto = {
@@ -76,19 +79,18 @@ nb.model = (function() {
   };
 
   makePerson = function ( person_map ) {
-    var person,
-        cid         = person_map.cid,
-        id          = person_map.id,
-        first_name  = person_map.first_name,
-        last_name   = person_map.last_name,
+    var cid         = person_map.cid || 'cid',
+        id          = person_map.id || 'id',
+        first_name  = person_map.first_name || 'first_name',
+        last_name   = person_map.last_name || 'last_name',
         email       = person_map.email,
-        password    = person_map.password;
+        password    = person_map.password || 'password';
 
-    if ( cid === undefined || ! first_name ) {
-      throw 'client id and first_name required';
+    if ( email === undefined ) {
+      throw 'email required';
     }
 
-    person= Object.create( personProto );
+    person            = Object.create( personProto );
     person.cid        = cid;
     person.first_name = first_name;
     person.last_name  = last_name;
@@ -127,6 +129,7 @@ nb.model = (function() {
     var get_by_cid,
         get_db,
         get_user,
+        set_user_by_email,
         login,
         logout;
 
@@ -139,6 +142,25 @@ nb.model = (function() {
     };
 
     get_user = function () {
+      return stateMap.user;
+    };
+
+    set_user_by_email = function ( email ) {
+      var sio = isFakeData ? nb.fake.mockSio : nb.data.getSio();
+
+      sio.on( 'userread', function( user_list ) {
+        var user_map = user_list[ 0 ];
+        stateMap.user = {
+          cid         : user_map._id,
+          first_name  : user_map.first_name,
+          last_name   : user_map.last_name,
+          email       : user_map.email,
+          password    : user_map.password
+        };
+      });
+
+      sio.emit( 'readuser', { email: email } );
+
       return stateMap.user;
     };
 
@@ -178,38 +200,53 @@ nb.model = (function() {
     };
 
     return {
-      get_by_cid  : get_by_cid,
-      get_db      : get_db,
-      get_user    : get_user,
-      login       : login,
-      logout      : logout
+      get_by_cid        : get_by_cid,
+      get_db            : get_db,
+      get_user          : get_user,
+      set_user_by_email : set_user_by_email,
+      login             : login,
+      logout            : logout
     };
   }());
 
-  event = (function () {
+  person = (function () {
     var create,
         read,
         update,
         destroy;
 
-    create  = function ( event_map ) {
+    create  = function ( email ) {
       var sio = nb.data.getSio();
 
-      sio.on( 'eventcreate', eventCreateResult );
+      sio.on( 'userread', userCreateComplete );
+      /*
+      sio.on( 'userread', function( user_list ) {
+        var user_map = user_list[ 0 ];
+        stateMap.person = {
+          _id         : user_map._id,
+          first_name  : user_map.first_name,
+          last_name   : user_map.last_name,
+          email       : user_map.email,
+          password    : user_map.password
+        };
+      });
+      */
 
-      sio.emit( 'createevent', event_map );
+      sio.emit( 'readuser', { email: email } );
+
+      return stateMap.person;
+    };
+    
+    read    = function () {
+      return stateMap.person;
     };
 
-    read    = function ( event_map ) {
-      console.log( event_map );
+    update  = function () {
+      console.log( "Do later" );
     };
 
-    update  = function ( event_map ) {
-      console.log( event_map );
-    };
-
-    destroy = function ( event_map ) {
-      console.log( event_map );
+    destroy = function () {
+      console.log( "Do later" );
     };
 
     return {
@@ -220,25 +257,133 @@ nb.model = (function() {
     };
   }());
 
-  eventCreateResult = function ( result_list ) {
-    var result_map = result_list[ 0 ];
+  event = (function () {
+    var fetchRemote,
+        create,
+        read,
+        readList,
+        update,
+        destroy,
+        _publish_eventcreate,
+        sio = nb.data.getSio();
 
-    $.gevent.publish( 'event-create-result', result_map );
+    fetchRemote = function( event_map ) {
+      //var sio = nb.data.getSio();
+
+      //sio.on( 'eventlistread', _publish_eventlistread );
+
+      sio.emit( 'readeventlist', event_map );
+    };
+
+    create  = function ( event_map ) {
+      //var sio = nb.data.getSio();
+
+      sio.on( 'eventcreate', _publish_eventcreate );
+
+      sio.emit( 'createevent', event_map );
+    };
+
+    read    = function ( event_map ) {
+      //var sio = nb.data.getSio();
+
+      //sio.on( 'eventread', _publish_eventlistread );
+
+      sio.emit( 'readevent', event_map );
+    };
+
+    readList = function ( event_map ) {
+      //var sio = nb.data.getSio();
+
+      //sio.on( 'eventlistread', _publish_eventlistread );
+
+      sio.emit( 'readeventlist', event_map );
+    };
+
+    update  = function ( event_map ) {
+      console.log( event_map );
+    };
+
+    destroy = function ( event_map ) {
+      console.log( event_map );
+    };
+
+    _publish_eventcreate = function ( result_list ) {
+      var result_map = result_list[ 0 ];
+
+      $.gevent.publish( 'eventcreate', result_map );
+    };
+
+    /*
+    _publish_eventlistread = function ( result_list ) {
+      var i,
+          result_map = result_list[ 0 ];
+
+      stateMap.event = {};
+
+      for ( i = 0; i < result_map.length; ++i ) {
+        // modelにデータを保持する。
+        stateMap.event[ result_map[ i ]._id ] = result_map[ i ];
+      }
+
+      $.gevent.publish( 'eventlistupdate', stateMap.event );
+    };
+    */
+
+
+    return {
+      fetchRemote : fetchRemote,
+      create      : create,
+      read        : read,
+      readList    : readList,
+      update      : update,
+      destroy     : destroy
+    };
+  }());
+
+  _publish_eventlistread = function ( result_list ) {
+    var i,
+        result_map = result_list[ 0 ];
+
+    stateMap.event = {};
+
+    for ( i = 0; i < result_map.length; ++i ) {
+      // modelにデータを保持する。
+      stateMap.event[ result_map[ i ]._id ] = result_map[ i ];
+    }
+
+    $.gevent.publish( 'eventlistupdate', stateMap.event );
+  };
+
+  userCreateComplete = function( result_list ) {
+    var user_map = result_list[ 0 ];
+    stateMap.person = {
+      _id         : user_map._id,
+      first_name  : user_map.first_name,
+      last_name   : user_map.last_name,
+      email       : user_map.email,
+      password    : user_map.password
+    };
+
+    $.gevent.publish( 'user-create-complete', stateMap.person );
   };
 
   //パブリックメソッド/initModule/開始
   initModule = function () {
     var i,
         people_list,
-        person_map;
+        person_map,
+        sio = nb.data.getSio();
 
+    sio.on( 'eventlistread', _publish_eventlistread );
     // 匿名ユーザを初期化する
+    /*
     stateMap.anon_user = makePerson({
       cid         : configMap.anon_id,
       id          : configMap.anon_id,
       first_name  : 'anonymous'
     });
     stateMap.user = stateMap.anon_user;
+    */
 
     if ( isFakeData ) {
       people_list = nb.fake.getPeopleList();
@@ -261,6 +406,7 @@ nb.model = (function() {
   return {
     initModule  : initModule,
     people      : people,
+    person      : person,
     event       : event
   };
   //------ パブリックメソッド終了 ---------------

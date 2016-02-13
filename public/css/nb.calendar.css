@@ -6,26 +6,20 @@ a:-webkit-any-link{
   text-decoration : none  !important; /* do not underline Links */
   color           : black !important;  /* give links a default color */
 }
-
-div#calendar {
-  /*display: flex;*/
-}
-
-.wrapper {
-  margin      : 0.5em;
-  border      : 0.1em solid #ccc;
-  width       : 20em;
-  height      : 27em;
-  box-shadow  : 0.1em 0.2em 0.8em #ccc;
-}
 .header {
+  border            : 0.1em solid #ccc;
   height            : 4em;
   background-color  : #3f51b5;
   color             : white;
   text-align        : center;
+  box-shadow        : 0.1em 0.2em 0.8em #ccc;
+}
+.calendar-body {
+  border      : 0.1em solid #ccc;
+  box-shadow  : 0.1em 0.2em 0.8em #ccc;
 }
 .calendar-body .col-xs-1 {
-  width       : 2.5em;
+  width       : 3.2em;
   margin-left : 0.2em;
   text-align  : center;
 }
@@ -61,4 +55,10 @@ div#calendar {
 
 .form-horizontal {
   margin      : 0.5em;
+}
+ul {
+  padding         : 0;
+}
+ul li {
+  list-style-type : none;
 }

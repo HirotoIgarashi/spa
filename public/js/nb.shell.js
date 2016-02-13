@@ -163,6 +163,7 @@ nb.shell = (function() {
     setJqueryMap,
     onClickLogin,
     onClickSignup,
+    completeUserCreate,
     initModule;
 
     //------ モジュールスコープ変数終了 -----------
@@ -413,14 +414,10 @@ nb.shell = (function() {
 
         event.preventDefault();
 
+        console.log( form_data )
         login_result = $.post( "user/login", form_data, "json" );
         login_result.done( function() {
           initModule( jqueryMap.$container );
-            /*
-            $('#loginButton')
-              .next('span')
-              .html( '<span>  result code: ' + data.email + '</span>' );
-              */
         });
         login_result.fail( function( data ) {
           $('#loginButton')
@@ -430,6 +427,13 @@ nb.shell = (function() {
       });
 
       return false;
+    };
+
+    completeUserCreate = function ( event, result_map ) {
+      $('.navbar-header')
+        .after('<div class="nav navbar-nav">' + result_map.email + 'でログインしています。</div>');
+      nb.tab.initModule( $('#contents') );
+
     };
     //------ イベントハンドラ終了 -----------------
 
@@ -444,15 +448,13 @@ nb.shell = (function() {
       $container.append( configMap.footer_html );
       setJqueryMap();
 
-      // 起動時にCookieがあるか確認する。
-      //console.log( Cookies.get() );
-      // 起動時にセッションがあるか確認する。
+      // 起動時にセッションがあるかサーバに問い合わせる
       authentication_result = $.get( "/user/authentication" );
 
-      authentication_result.done( function( data ) {
+      authentication_result.done( function( result ) {
         var logout_result;
 
-        if ( data.state === "success" ) {
+        if ( result.state === "success" ) {
           $('#startSignup')
             .remove();
           $('#login')
@@ -463,11 +465,18 @@ nb.shell = (function() {
             logout_result = $.get( "/user/logout" );
             logout_result.always( function() {
               initModule( $container );
-            } );
+            });
           } );
+          
+          // modelから登録した情報を求める
+          nb.model.person.create( result.email );
+
+          /*
           $('.navbar-header')
-            .after('<div class="nav navbar-nav">' + data.email + 'でログインしています。</div>');
+            .after('<div class="nav navbar-nav">' + result.email + 'でログインしています。</div>');
           nb.tab.initModule( $('#contents') );
+          */
+
         }
         else {
           jqueryMap.$contents.html( configMap.tabs_html);
@@ -488,6 +497,8 @@ nb.shell = (function() {
         jqueryMap.$login
           .click( onClickLogin );
       });
+
+      $.gevent.subscribe( $container, 'user-create-complete', completeUserCreate );
 
     };
     //パブリックメソッド/initModule/終了

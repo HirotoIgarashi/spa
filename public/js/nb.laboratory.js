@@ -9,7 +9,7 @@ regexp  : true, sloppy  : true, vars      : false,
 white   : true
 */
 
-/*global $, nb */
+/*global $, nb, WebSocket */
 
 nb.laboratory = (function() {
 
@@ -45,7 +45,8 @@ nb.laboratory = (function() {
     setJqueryMap,
     configModule,
     initModule,
-    makeHtml;
+    makeHtml,
+    WebSocketDemo;
 
     //------ モジュールスコープ変数終了 -----------
 
@@ -95,7 +96,7 @@ nb.laboratory = (function() {
 
     //------ パブリックメソッド開始 ---------------
     //パブリックメソッド/WebSocketDemo/開始
-    WebSocketDemo = function() {
+    WebSocketDemo = (function() {
       return {
         ws      : null,
         init    : function( url ) {
@@ -118,14 +119,14 @@ nb.laboratory = (function() {
           };
         },
 
-        onMessage : function( msg ) {
+        onMessage : function () {
           this.ws.onmessage = function( evt ) {
             console.log( 'レスポンス: ' + ' : ' + evt.data );
             WebSocketDemo.ws.close();
           };
         }
-      }
-    }();
+      };
+    }());
     //パブリックメソッド/WebSocketDemo/終了
 
     //パブリックメソッド/configModule/開始
@@ -158,14 +159,7 @@ nb.laboratory = (function() {
     initModule = function( $container ) {
       var mainElement,
           descriptionTarget,
-          description,
-          socket = io.connect('localhost:443');
-
-      socket.on('connect', function() {
-        socket.emit('foo', 1);
-        console.log( "socket done!" );
-      });
-
+          description;
 
       stateMap.container = $container;
       setJqueryMap();
@@ -177,19 +171,19 @@ nb.laboratory = (function() {
           console.log( "次の入力をしました:", e.target );
         }, false );
 
-      document.newForm.quantity.addEventListener('input', function( e ) {
-          this.checkValidity()
+      document.newForm.quantity.addEventListener('input', function () {
+          this.checkValidity();
         }, false );
 
-      document.newForm.quantity.addEventListener('invalid', function( e ) {
-          alert('選んだ数は1と5の間である必要があります。あなたは、' + this.value + ' を選びました。')
+      document.newForm.quantity.addEventListener('invalid', function () {
+          alert('選んだ数は1と5の間である必要があります。あなたは、' + this.value + ' を選びました。');
         }, false );
 
       mainElement = document.getElementById('myList');
       descriptionTarget = document.getElementById('displayTarg');
 
       mainElement.addEventListener( 'click', function( e ) {
-        var description = e.target.getAttribute('data-description');
+        description = e.target.getAttribute('data-description');
         descriptionTarget.innerHTML = description;
       }, false );
 
