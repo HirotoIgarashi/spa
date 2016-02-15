@@ -35,9 +35,9 @@ nb.model = (function() {
     removePerson,
     people,
     person,
-    userCreateComplete,
     event,
     _publish_eventlistread,
+    _publish_personread,
     initModule;
 
   personProto = {
@@ -210,31 +210,20 @@ nb.model = (function() {
   }());
 
   person = (function () {
-    var create,
+    var fetchRemote,
+        create,
         read,
         update,
         destroy;
 
-    create  = function ( email ) {
+    fetchRemote = function ( email ) {
       var sio = nb.data.getSio();
 
-      sio.on( 'userread', userCreateComplete );
-      /*
-      sio.on( 'userread', function( user_list ) {
-        var user_map = user_list[ 0 ];
-        stateMap.person = {
-          _id         : user_map._id,
-          first_name  : user_map.first_name,
-          last_name   : user_map.last_name,
-          email       : user_map.email,
-          password    : user_map.password
-        };
-      });
-      */
+      sio.emit( 'readperson', { email: email } );
+    };
 
-      sio.emit( 'readuser', { email: email } );
-
-      return stateMap.person;
+    create  = function ( person_map ) {
+      stateMap.person = person_map;
     };
     
     read    = function () {
@@ -250,10 +239,11 @@ nb.model = (function() {
     };
 
     return {
-      create  : create,
-      read    : read,
-      update  : update,
-      destroy : destroy
+      fetchRemote : fetchRemote,
+      create      : create,
+      read        : read,
+      update      : update,
+      destroy     : destroy
     };
   }());
 
@@ -354,17 +344,17 @@ nb.model = (function() {
     $.gevent.publish( 'eventlistupdate', stateMap.event );
   };
 
-  userCreateComplete = function( result_list ) {
-    var user_map = result_list[ 0 ];
+  _publish_personread = function ( result_list ) {
+    var person_map = result_list[ 0 ];
     stateMap.person = {
-      _id         : user_map._id,
-      first_name  : user_map.first_name,
-      last_name   : user_map.last_name,
-      email       : user_map.email,
-      password    : user_map.password
+      _id         : person_map._id,
+      first_name  : person_map.first_name,
+      last_name   : person_map.last_name,
+      email       : person_map.email,
+      password    : person_map.password
     };
 
-    $.gevent.publish( 'user-create-complete', stateMap.person );
+    $.gevent.publish( 'personread', stateMap.person );
   };
 
   //パブリックメソッド/initModule/開始
@@ -374,7 +364,8 @@ nb.model = (function() {
         person_map,
         sio = nb.data.getSio();
 
-    sio.on( 'eventlistread', _publish_eventlistread );
+    sio.on( 'eventlistread',  _publish_eventlistread );
+    sio.on( 'personread',     _publish_personread );
     // 匿名ユーザを初期化する
     /*
     stateMap.anon_user = makePerson({

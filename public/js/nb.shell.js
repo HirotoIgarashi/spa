@@ -6,7 +6,7 @@
 devel   : true, indent  : 2,    maxerr    : 50,
 newcap  : true, nomen   : true, plusplus  : true,
 regexp  : true, sloppy  : true, vars      : false,
-white   : true
+white   : true, unparam : true
 */
 
 /*global $, nb, Cookies */
@@ -33,6 +33,8 @@ nb.shell = (function() {
                     + '<img alt="Note" src="/images/note.jpg" height="30px" width="45px">'
                   + '</a>'
                 + '</div>'
+                + '<div class="nav navbar-nav" id="message-aria">'
+                + '</div>'
                 + '<!-- Collect the nav links, forms, and other content for toggling -->'
                 + '<div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">'
                   + '<ul class="nav navbar-nav navbar-right">'
@@ -41,6 +43,9 @@ nb.shell = (function() {
                     + '</button></li>'
                     + '<li><button id="login" type="button" class="btn btn-default navbar-btn">'
                       + '<span class="glyphicon glyphicon-user"></span>ログイン'
+                    + '</button></li>'
+                    + '<li><button id="logout" type="button" class="btn btn-default navbar-btn">'
+                      + '<span class="glyphicon glyphicon-off"></span>ログアウト'
                     + '</button></li>'
                   + '</ul>'
                 + '</div>'
@@ -163,12 +168,51 @@ nb.shell = (function() {
     setJqueryMap,
     onClickLogin,
     onClickSignup,
-    completeUserCreate,
+    onClickLogout,
+    onPersonRead,
+    onPersonCreate,
+    checkSession,
     initModule;
 
     //------ モジュールスコープ変数終了 -----------
 
     //------ ユーティリティメソッド開始 -----------
+    // checkSession/start
+    // Session情報があるかチェックする
+    checkSession = function () {
+      var request;
+
+      // 起動時にセッションがあるかサーバに問い合わせる
+      request = $.get( "/user/authentication" );
+
+      request.done( function( result ) {
+        if ( result.state === "success" ) {
+          // model
+          nb.model.person.fetchRemote( result.email );
+
+          // ユーザコンテンツを表示する。
+          jqueryMap.$startSignup.hide();
+          jqueryMap.$login.hide();
+          jqueryMap.$logout.show();
+          jqueryMap.$logout.bind( 'click', onClickLogout );
+        }
+        else {
+          // ゲストコンテンツを表示する。
+          jqueryMap.$contents.html( configMap.tabs_html);
+          jqueryMap.$startSignup.show();
+          jqueryMap.$login.show();
+          jqueryMap.$logout.hide();
+          // クリックハンドラをバインドする
+          jqueryMap.$startSignup.bind( 'click', onClickSignup );
+          jqueryMap.$login.bind( 'click', onClickLogin );
+        }
+      });
+
+      request.fail( function( data ) {
+        console.log( "authentiacation error result: " + data );
+      });
+    };
+    // checkSession/end
 
     // emailのvalidate
     function validateEmail( fld ) {
@@ -293,10 +337,12 @@ nb.shell = (function() {
         $footer       : $container.find( '#footer' ),
         $myTabs       : $container.find( '#myTabs' ),
         $myTabContent : $container.find( '#myTabContent' ),
-        $startSignup  : $container.find( '#startSignup' ),
         $signupForm   : $container.find( '#signupForm' ),
         $loginForm    : $container.find( '#loginForm' ),
-        $login        : $container.find( '#login' )
+        $messageAria  : $container.find( '#message-aria' ),
+        $startSignup  : $container.find( '#startSignup' ),
+        $login        : $container.find( '#login' ),
+        $logout       : $container.find( '#logout' )
       };
     };
     //DOMメソッド/setJqueryMap/終了
@@ -380,12 +426,10 @@ nb.shell = (function() {
         // Stop form from submitting normally
         event.preventDefault();
 
-
         posting = $.post( "user/create", form_data, "json" );
 
         posting.done( function() {
           jqueryMap.$contents.html( configMap.signup_confirm_html );
-          //$('#signup').html( configMap.signup_confirm_html );
         });
           
         posting.fail( function( data ) {
@@ -400,26 +444,36 @@ nb.shell = (function() {
     };
 
     onClickLogin = function() {
-      var login_result;
 
       setJqueryMap();
 
       jqueryMap.$contents.html( configMap.login_html );
 
       $('#loginForm').submit(function( event ) {
-        var form_data = {
-          email     : $('#email').val(),
-          password  : $('#password').val()
-        };
+        var request,
+            form_data = {
+              email     : $('#email').val(),
+              password  : $('#password').val()
+            };
 
         event.preventDefault();
 
-        console.log( form_data )
-        login_result = $.post( "user/login", form_data, "json" );
-        login_result.done( function() {
-          initModule( jqueryMap.$container );
+        request = $.post( "user/login", form_data, "json" );
+        request.done( function() {
+          var person_map = request.responseJSON[0];
+
+          nb.model.person.create( person_map );
+
+          // ユーザコンテンツを表示する。
+          jqueryMap.$startSignup.hide();
+          jqueryMap.$login.hide();
+          jqueryMap.$logout.show();
+          jqueryMap.$messageAria
+            .text( person_map.email + 'でログインしています。');
+
+          nb.tab.initModule( $('#contents') );
         });
-        login_result.fail( function( data ) {
+        request.fail( function( data ) {
           $('#loginButton')
             .next('span')
             .html( '<span>  result code: ' + data.responseText + '</span>' );
@@ -429,18 +483,43 @@ nb.shell = (function() {
       return false;
     };
 
-    completeUserCreate = function ( event, result_map ) {
-      $('.navbar-header')
-        .after('<div class="nav navbar-nav">' + result_map.email + 'でログインしています。</div>');
-      nb.tab.initModule( $('#contents') );
+    onClickLogout = function () {
+      $.get( "/user/logout" );
 
+      jqueryMap.$startSignup
+        .show()
+        .bind( 'click', onClickSignup );
+
+      jqueryMap.$login
+        .show()
+        .bind( 'click', onClickLogin );
+
+      jqueryMap.$logout
+        .hide();
+        
+      jqueryMap.$messageAria
+        .empty();
+
+      jqueryMap.$contents
+        .html( configMap.tabs_html );
+    };
+
+    onPersonCreate = function ( event, result_map ) {
+      $('#contents').empty();
+      nb.tab.initModule( $('#contents') );
+    };
+
+    onPersonRead = function ( event, result_map ) {
+      jqueryMap.$messageAria
+        .text( result_map.email + 'でログインしています。');
+
+      nb.tab.initModule( $('#contents') );
     };
     //------ イベントハンドラ終了 -----------------
 
     //------ パブリックメソッド開始 ---------------
     //パブリックメソッド/initModule/開始
     initModule = function( $container ) {
-      var authentication_result;
 
       stateMap.$container = $container;
       $container.html( configMap.navbar_html );
@@ -448,57 +527,12 @@ nb.shell = (function() {
       $container.append( configMap.footer_html );
       setJqueryMap();
 
-      // 起動時にセッションがあるかサーバに問い合わせる
-      authentication_result = $.get( "/user/authentication" );
+      // Session情報があるかチェックする
+      checkSession();
 
-      authentication_result.done( function( result ) {
-        var logout_result;
-
-        if ( result.state === "success" ) {
-          $('#startSignup')
-            .remove();
-          $('#login')
-            .after( configMap.logout_button_html );
-          $('#login')
-            .remove();
-          $('#logout').click( function() {
-            logout_result = $.get( "/user/logout" );
-            logout_result.always( function() {
-              initModule( $container );
-            });
-          } );
-          
-          // modelから登録した情報を求める
-          nb.model.person.create( result.email );
-
-          /*
-          $('.navbar-header')
-            .after('<div class="nav navbar-nav">' + result.email + 'でログインしています。</div>');
-          nb.tab.initModule( $('#contents') );
-          */
-
-        }
-        else {
-          jqueryMap.$contents.html( configMap.tabs_html);
-          // クリックハンドラをバインドする
-          jqueryMap.$startSignup
-            .click( onClickSignup );
-          jqueryMap.$login
-            .click( onClickLogin );
-        }
-      });
-
-      authentication_result.fail( function( data ) {
-        console.log( "result: " + data );
-        jqueryMap.$contents.html( configMap.tabs_html);
-        // クリックハンドラをバインドする
-        jqueryMap.$startSignup
-          .click( onClickSignup );
-        jqueryMap.$login
-          .click( onClickLogin );
-      });
-
-      $.gevent.subscribe( $container, 'user-create-complete', completeUserCreate );
+      //$.gevent.unsubscribe( $container, 'user-create-complete' );
+      $.gevent.subscribe( $container, 'personcreate', onPersonCreate );
+      $.gevent.subscribe( $container, 'personread', onPersonRead );
 
     };
     //パブリックメソッド/initModule/終了

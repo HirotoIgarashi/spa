@@ -1,6 +1,6 @@
 /*
- * module_template.js
- * ブラウザ機能モジュールのテンプレート
+ * nb.calendar.js
+ * カレンダー機能
  */
 /*jslint          browser : true, continue  : true,
 devel   : true, indent  : 2,    maxerr    : 50,
@@ -131,11 +131,11 @@ nb.calendar = (function() {
 
     //ユーティリティメソッド/fetchEvent/開始 -----------
     fetchEvent = function ( year, month ) {
+      var id;
+
       stateMap.person = nb.model.person.read();
 
-      //nb.model.event.readList( { id : stateMap.person._id });
       nb.model.event.fetchRemote( { id : stateMap.person._id });
-      
     };
     //ユーティリティメソッド/fetchEvent/終了 -----------
 
@@ -419,10 +419,10 @@ nb.calendar = (function() {
 
       //console.log( result_map );
       for ( id in result_map ) {
-        //console.log( result_map[ id ].startDate );
-        //console.log( $('.calendar-body [data-date="2016-02-11"] ul') );
-        $('.calendar-body [data-date=' + result_map[ id ].startDate + '] ul')
-          .append( '<li>' + result_map[ id ].name + '</li>' ); 
+        if ( result_map.hasOwnProperty( id ) ) {
+          $('.calendar-body [data-date=' + result_map[ id ].startDate + '] ul')
+            .append( '<li>' + result_map[ id ].name + '</li>' ); 
+        }
       }
     };
     //------ イベントハンドラ終了 -----------------
@@ -473,10 +473,11 @@ nb.calendar = (function() {
 
         $('.current-date')
           .append( currentDate.format( 'YYYY年MM月DD日dddd' ) );
+
+        $.gevent.subscribe( $container, 'eventcreate', onEventcreate );
+        $.gevent.subscribe( $container, 'eventlistupdate', onEventlistupdate );
       }
 
-      $.gevent.subscribe( $container, 'eventcreate', onEventcreate );
-      $.gevent.subscribe( $container, 'eventlistupdate', onEventlistupdate );
 
       return true;
     };
