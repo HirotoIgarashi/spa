@@ -48,3 +48,6 @@ label.error {
 #signupButton.disabled {
   background-color: lemonchiffon;
 }
+.navbar {
+  margin-bottom: 0px;
+}

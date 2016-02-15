@@ -62,3 +62,6 @@ ul {
 ul li {
   list-style-type : none;
 }
+.dates p {
+  font-size: 5%;
+}
