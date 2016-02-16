@@ -18,7 +18,17 @@ nb.calendar = (function() {
   var
     configMap = {
       settable_map  : { color_name: true },
-      color_name    : 'blue'
+      color_name    : 'blue',
+      menu_html : String()
+        + '<ul class="nav nav-pills">'
+          + '<li role="presentation" class="dropdown">'
+            + '<a class="dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">'
+            + '設定<span class="caret"></span>'
+            + '</a>'
+            + '<ul class="dropdown-menu">'
+            + '</ul>'
+          + '</li>'
+        + '</ul>'
     },
     stateMap = {
       $container  : null,
@@ -38,6 +48,7 @@ nb.calendar = (function() {
     getCalendarLastDate,
     getCalendarList,
     makeCalendarHtml,
+    makeEventList,
     setCalendar,
     makeEventForm,
     fetchEvent,
@@ -58,8 +69,7 @@ nb.calendar = (function() {
     };
     // ある日付を与えてその月の１日を求める
     getFirstDate = function( date ) {
-      return moment( date )
-              .date( 1 );
+      return moment( date ).date( 1 );
     };
     // ある日付を与えてその月の最終日を求める
     getLastDate = function( date ) {
@@ -69,15 +79,26 @@ nb.calendar = (function() {
 
     // その月の１日を与えてカレンダーの最初の日を求める
     getCalendarFirstDate = function( firstDate ) {
-      var backCount;
-      backCount = firstDate.format( 'e' );
+      var backCount = 6;
+
+      // 日曜日始まり
+      //backCount = firstDate.format( 'e' );  // 月曜日は"1"が返る
+      // 月曜日始まり
+      if ( firstDate.format( 'e' ) !== '0' ) {
+        backCount = firstDate.format( 'e' ) - 1;  // 月曜日は"1"が返る
+      }
       return moment( firstDate ).subtract( backCount, 'days' );
     };
 
     // その月の最後の日を与えてカレンダーの最後の日を求める
     getCalendarLastDate = function( lastDate) {
-      var forwardCount;
-      forwardCount = 6 - lastDate.format( 'e' );
+      var forwardCount = 0;
+      // 日曜日始まり
+      //forwardCount = 6 - lastDate.format( 'e' );
+      // 月曜日始まり
+      if ( lastDate.format( 'e' ) !== '0' ) {
+        forwardCount = 7 - lastDate.format( 'e' );
+      }
       return moment( lastDate ).add( forwardCount, 'days' );
     };
     // 次の月を求める
@@ -131,7 +152,6 @@ nb.calendar = (function() {
 
     //ユーティリティメソッド/fetchEvent/開始 -----------
     fetchEvent = function ( year, month ) {
-      var id;
 
       stateMap.person = nb.model.person.read();
 
@@ -221,13 +241,13 @@ nb.calendar = (function() {
             .appendTo( $class_calendar_body );
         }
 
+        // 今月の処理
         if ( date_list[i].format( 'MM' ) === month ) {
           // 日付を表示する。
           $('<div data-date="' + date_list[i].format('YYYY-MM-DD') + '"/>')
             .addClass( 'col-xs-1' )
-            .append( $('<ul><li>' + date_list[i].format( 'DD' ) + '</li></ul>'))
-            //
-            .html( $('<ul><li>' + date_list[i].format( 'DD' ) + '</li></ul>'))
+            .html( $('<p>' + date_list[i].format( 'DD' ).replace( /^0+([0-9]+.*)/, '$1' ) + '</p>'))
+            .append( $('<ul />') )
             .bind(  'utap',
                     {
                       year  : year,
@@ -238,6 +258,7 @@ nb.calendar = (function() {
                  )
             .appendTo( $row_dates );
         }
+        // 先月が翌月
         else {
           $('<div class="col-xs-1"/>')
             .append( $('<p class="inactive">' + date_list[i].format( 'DD' ) + '</p>') )
@@ -278,7 +299,6 @@ nb.calendar = (function() {
     //DOMメソッド/makeEventForm/開始
     makeEventForm = function( dateData ) {
       var documnetFragment,
-          $class_col_sm_8    = $('<div class="col-sm-8"></div>'),
           $horizontalForm    = $('<form id="addEventForm" class="form-horizontal"></form>'),
           $form_group_name   = $('<div class="form-group"></div>'),
           $form_group_date   = $('<div class="form-group"></div>'),
@@ -318,15 +338,44 @@ nb.calendar = (function() {
 
       $horizontalForm
         .submit( onTapAddEvent )
-        .clone( true )
-        .appendTo( $class_col_sm_8 );
-      $('<div id="result-text"/>').appendTo( $class_col_sm_8 );
+        .clone( true );
+        //.appendTo( $class_col_sm_8 );
+      //$('<div id="result-text"/>').appendTo( $class_col_sm_8 );
+      $('<div id="result-text"/>').appendTo( $horizontalForm );
 
-      $( $class_col_sm_8 ).appendTo( documnetFragment );
+      //$( $class_col_sm_8 ).appendTo( documnetFragment );
+      $( $horizontalForm ).appendTo( documnetFragment );
 
       return documnetFragment;
     };
     //DOMメソッド/makeEventForm/終了
+
+    //DOMメソッド/makeEventList/開始
+    makeEventList = function ( dateData ) {
+      var i,
+          return_data,
+          event_data,
+          $event_list;
+
+      event_data = nb.model.event.read( { startDate: dateData } );
+
+      //if ( event_data === undefined || event_data.length === 0 ) {
+      if ( event_data.length === 0 ) {
+        return_data = '予定はありません。';
+      }
+      else {
+        $event_list = $('<ul />');
+        console.log( event_data.length );
+        for ( i = 0; i < event_data.length; ++i ) {
+          //console.log( event_data[i] );
+          $event_list.append( '<li>' + event_data[ i ].name + '</li>' );
+        }
+        return_data = $event_list;
+      }
+
+      return return_data;
+    };
+    //DOMメソッド/makeEventList/終了
     //
     //DOMメソッド/setJqueryMap/開始
     setJqueryMap = function() {
@@ -367,10 +416,24 @@ nb.calendar = (function() {
       if ( jqueryMap.$col_sm_8 ) {
         jqueryMap.$col_sm_8.remove();
       }
+      //jqueryMap.$row
+      jqueryMap.$row.append( $('<div class="col-sm-8"></div>') );
+      setJqueryMap();
+
+      jqueryMap.$col_sm_8
+        .append(
+          makeEventForm( event.target.getAttribute( 'data-date' ) )
+        )
+        .append( makeEventList( event.target.getAttribute( 'data-date' ) ) );
+      setJqueryMap();
+      /*
       jqueryMap.$row
         .append(
           makeEventForm( event.target.getAttribute( 'data-date' ) )
-          );
+        );
+      jqueryMap.$col_sm_8
+        .append( makeEventList( event.target.getAttribute( 'data-date' ) ) );
+      */
 
       setJqueryMap();
     };
@@ -417,11 +480,10 @@ nb.calendar = (function() {
     onEventlistupdate = function ( event, result_map ) {
       var id;
 
-      //console.log( result_map );
       for ( id in result_map ) {
         if ( result_map.hasOwnProperty( id ) ) {
           $('.calendar-body [data-date=' + result_map[ id ].startDate + '] ul')
-            .append( '<li>' + result_map[ id ].name + '</li>' ); 
+            .append( '<li data-id="' + result_map[ id ]._id + '">' + result_map[ id ].name + '</li>' ); 
         }
       }
     };
@@ -460,13 +522,19 @@ nb.calendar = (function() {
 
       var currentDate   = getCurrentDate(),
           currentYear   = currentDate.format( 'YYYY' ),
-          currentMonth  = currentDate.format( 'MM' );
+          currentMonth  = currentDate.format( 'MM' ),
+          $config_menu;
 
       stateMap.container = $container;
 
       if ($container.find('.container-fluid').length === 0) {
+        $config_menu = $('<div id="configuration" />');
+        $config_menu.append( configMap.menu_html );
+        
         $container
-          .append( $('<div class="container-fluid"><div id="row" class="row"></div></div>') );
+          .append( $('<div class="container-fluid"><div id="row" class="row"></div></div>') )
+          .append( $config_menu );
+
         setJqueryMap();
 
         setCalendar( currentYear, currentMonth );

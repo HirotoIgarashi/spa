@@ -7,21 +7,25 @@ a:-webkit-any-link{
   color           : black !important;  /* give links a default color */
 }
 .header {
-  border            : 0.1em solid #ccc;
+  /* border            : 0.1em solid #ccc; */
   height            : 4em;
-  background-color  : #3f51b5;
-  color             : white;
+  /* background-color  : #3f51b5; */
+  /* color             : white; */
   text-align        : center;
-  box-shadow        : 0.1em 0.2em 0.8em #ccc;
+  /* box-shadow        : 0.1em 0.2em 0.8em #ccc; */
 }
 .calendar-body {
-  border      : 0.1em solid #ccc;
-  box-shadow  : 0.1em 0.2em 0.8em #ccc;
+  /* border      : 0.1em solid #ccc; */
+  /* box-shadow  : 0.1em 0.2em 0.8em #ccc; */
 }
 .calendar-body .col-xs-1 {
+  border      : 0.1em solid #ccc;
   width       : 3.2em;
-  margin-left : 0.2em;
+  margin-left : 0;
   text-align  : center;
+}
+.weekdays .col-xs-1 p {
+  margin-bottom : 0;
 }
 .header p {
   padding-top     : 1.2em;
@@ -35,10 +39,13 @@ a:-webkit-any-link{
   color : #ccc;
 }
 .weekdays {
-  padding : 1em;
+  padding-left  : 1.7em;
 }
 .dates {
-  padding : 0.2em 1em 0.2em 1em;
+  padding-left : 1.7em;
+}
+.dates .col-xs-1 {
+  height  : 3.6em;
 }
 .line {
   height  : 0.1em;
@@ -63,5 +70,18 @@ ul li {
   list-style-type : none;
 }
 .dates p {
-  font-size: 5%;
+  margin-left   : 0.2em;
+  margin-bottom : 0.1em;
+  font-size     : 5%;
+  text-align    : left;
+}
+.col-xs-1 {
+  padding   : 0;
+}
+.col-xs-1 {
+  margin  : 0;
+}
+.col-xs-1 ul li {
+  padding   : 0;
+  font-size : 5%;
 }

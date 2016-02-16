@@ -258,27 +258,26 @@ nb.model = (function() {
         sio = nb.data.getSio();
 
     fetchRemote = function( event_map ) {
-      //var sio = nb.data.getSio();
-
-      //sio.on( 'eventlistread', _publish_eventlistread );
-
       sio.emit( 'readeventlist', event_map );
     };
 
     create  = function ( event_map ) {
-      //var sio = nb.data.getSio();
-
       sio.on( 'eventcreate', _publish_eventcreate );
-
       sio.emit( 'createevent', event_map );
     };
 
     read    = function ( event_map ) {
-      //var sio = nb.data.getSio();
+      var event_item,
+          return_map = [];
 
-      //sio.on( 'eventread', _publish_eventlistread );
-
-      sio.emit( 'readevent', event_map );
+      console.log( event_map.startDate );
+      for ( event_item in stateMap.event ) {
+        if ( stateMap.event[ event_item ].startDate === event_map.startDate ) {
+          return_map.push( stateMap.event[ event_item ] );
+        }
+      }
+      
+      return return_map;
     };
 
     readList = function ( event_map ) {
