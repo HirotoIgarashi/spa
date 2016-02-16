@@ -534,6 +534,9 @@ nb.shell = (function() {
       $.gevent.subscribe( $container, 'personcreate', onPersonCreate );
       $.gevent.subscribe( $container, 'personread', onPersonRead );
 
+      // スクロール禁止を解除する
+      $(window).off('.noScroll');
+
     };
     //パブリックメソッド/initModule/終了
 
