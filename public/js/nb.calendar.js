@@ -545,6 +545,8 @@ nb.calendar = (function() {
         $.gevent.subscribe( $container, 'eventcreate', onEventcreate );
         $.gevent.subscribe( $container, 'eventlistupdate', onEventlistupdate );
       }
+      // スクロール禁止を解除する。
+      $(window).off('.noScroll');
 
 
       return true;
