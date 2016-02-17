@@ -37,6 +37,7 @@ nb.model = (function() {
     person,
     event,
     _publish_eventlistread,
+    _publish_eventdelete,
     _publish_personread,
     initModule;
 
@@ -267,13 +268,17 @@ nb.model = (function() {
     };
 
     read    = function ( event_map ) {
-      var event_item,
+      var id,
+          find_key,
           return_map = [];
 
-      console.log( event_map.startDate );
-      for ( event_item in stateMap.event ) {
-        if ( stateMap.event[ event_item ].startDate === event_map.startDate ) {
-          return_map.push( stateMap.event[ event_item ] );
+      find_key = Object.keys( event_map )[ 0 ];
+
+      for ( id in stateMap.event ) {
+        if ( stateMap.event.hasOwnProperty( id ) ) {
+          if ( stateMap.event[ id ][ find_key ] === event_map[ find_key ] ) {
+            return_map.push( stateMap.event[ id ] );
+          }
         }
       }
       
@@ -283,7 +288,6 @@ nb.model = (function() {
     readList = function ( event_map ) {
       //var sio = nb.data.getSio();
 
-      //sio.on( 'eventlistread', _publish_eventlistread );
 
       sio.emit( 'readeventlist', event_map );
     };
@@ -294,6 +298,9 @@ nb.model = (function() {
 
     destroy = function ( event_map ) {
       console.log( event_map );
+      delete stateMap.event[ event_map._id ];
+
+      sio.emit( 'deleteevent', event_map );
     };
 
     _publish_eventcreate = function ( result_list ) {
@@ -301,23 +308,6 @@ nb.model = (function() {
 
       $.gevent.publish( 'eventcreate', result_map );
     };
-
-    /*
-    _publish_eventlistread = function ( result_list ) {
-      var i,
-          result_map = result_list[ 0 ];
-
-      stateMap.event = {};
-
-      for ( i = 0; i < result_map.length; ++i ) {
-        // modelにデータを保持する。
-        stateMap.event[ result_map[ i ]._id ] = result_map[ i ];
-      }
-
-      $.gevent.publish( 'eventlistupdate', stateMap.event );
-    };
-    */
-
 
     return {
       fetchRemote : fetchRemote,
@@ -343,6 +333,11 @@ nb.model = (function() {
     $.gevent.publish( 'eventlistupdate', stateMap.event );
   };
 
+  _publish_eventdelete = function () {
+
+    $.gevent.publish( 'eventdelete', stateMap.event );
+  };
+
   _publish_personread = function ( result_list ) {
     var person_map = result_list[ 0 ];
     stateMap.person = {
@@ -364,6 +359,7 @@ nb.model = (function() {
         sio = nb.data.getSio();
 
     sio.on( 'eventlistread',  _publish_eventlistread );
+    sio.on( 'eventdelete',    _publish_eventdelete );
     sio.on( 'personread',     _publish_personread );
     // 匿名ユーザを初期化する
     /*
