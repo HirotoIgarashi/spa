@@ -186,6 +186,7 @@ nb.calendar = (function() {
           $class_row_weekdays  = $('<div/>').addClass( 'row weekdays'   ),
           $class_row_dates     = $('<div/>').addClass( 'row dates'      ),
           $row_dates,
+          $date,
           date_list,
           next_month,
           previous_month;
@@ -205,7 +206,7 @@ nb.calendar = (function() {
       $('<li/>')
         .addClass( 'previous' )
         .append( '<a><span class="glyphicon glyphicon-chevron-left pull-left"/></a>' )
-        .bind('utap',
+        .bind('click',
               {
                 year: previous_month.format( 'YYYY' ),
                 month: previous_month.format( 'MM' )
@@ -220,7 +221,7 @@ nb.calendar = (function() {
 
       $('<li/>')
         .addClass( 'next' )
-        .bind(  'utap',
+        .bind(  'click',
                 {
                   year  : next_month.format( 'YYYY' ),
                   month : next_month.format( 'MM' )
@@ -257,19 +258,41 @@ nb.calendar = (function() {
         // 今月の処理
         if ( date_list[i].format( 'MM' ) === month ) {
           // 日付を表示する。
+          $date = $('<div data-date="' + date_list[i].format('YYYY-MM-DD') + '" type="button" />');
+          $date
+            .addClass( 'col-xs-1' )
+            .on(
+              'click',
+              {
+                year  : year,
+                month : month,
+                date  : date_list[i].format( 'DD' )
+              },
+              onTapDate
+            );
+
+          $date
+            .html( $('<p>' + date_list[i].format( 'DD' ).replace( /^0+([0-9]+.*)/, '$1' ) + '</p>'))
+            .append( $('<ul />') );
+
+          $date.appendTo( $row_dates );
+          /*
           $('<div data-date="' + date_list[i].format('YYYY-MM-DD') + '"/>')
             .addClass( 'col-xs-1' )
             .html( $('<p>' + date_list[i].format( 'DD' ).replace( /^0+([0-9]+.*)/, '$1' ) + '</p>'))
             .append( $('<ul />') )
-            .bind(  'utap',
-                    {
-                      year  : year,
-                      month : month,
-                      date  : date_list[i].format( 'DD' )
-                    },
-                    onTapDate
-                 )
+            .bind(
+              'click',
+              {
+                year  : year,
+                month : month,
+                date  : date_list[i].format( 'DD' )
+              },
+              onTapDate
+            )
             .appendTo( $row_dates );
+          */
+
         }
         // 先月が翌月
         else {
@@ -396,7 +419,7 @@ nb.calendar = (function() {
           $td_edit      = $( '<td class="editbutton"></td>' );
 
           $button_edit  = $( '<button data-id="' + event_data[ i ]._id + '" id="event-edit" type="button"></button>' );
-          $button_edit.bind( 'utap', onEventEdit );
+          $button_edit.bind( 'click', onEventEdit );
 
           $span_edit    = $( '<span class="glyphicon glyphicon-edit"></span>' );
 
@@ -406,7 +429,7 @@ nb.calendar = (function() {
           $td_remove        = $( '<td class="removebutton"></td>' );
 
           $button_remove = $( '<button data-id="' + event_data[ i ]._id + '" id="event-remove" type="button"></button>' );
-          $button_remove.bind( 'utap', onEventRemove );
+          $button_remove.bind( 'click', onEventRemove );
 
           $span_ermove  = $( '<span class="glyphicon glyphicon-remove"></span>' );
 
@@ -473,9 +496,9 @@ nb.calendar = (function() {
 
       jqueryMap.$col_sm_8
         .append(
-          makeEventForm( event.target.getAttribute( 'data-date' ) )
+          makeEventForm( event.currentTarget.getAttribute( 'data-date' ) )
         )
-        .append( makeEventList( event.target.getAttribute( 'data-date' ) ) );
+        .append( makeEventList( event.currentTarget.getAttribute( 'data-date' ) ) );
       setJqueryMap();
     };
     // onTapAddEvent
@@ -486,17 +509,10 @@ nb.calendar = (function() {
 
       event.preventDefault();
 
-      /*
-      if ( event.target.getAttribute( 'data-id' ) !== null ) {
-        console.log('data-id exist');
-        console.log( event.target.getAttribute( 'data-id' ) );
-      }
-      */
-
       stateMap.person = nb.model.person.read();
 
       event_map = {
-        _id       : event.target.getAttribute( 'data-id' ),
+        _id       : event.currentTarget.getAttribute( 'data-id' ),
         person_id : stateMap.person._id,
         name      : $('#name').val(),
         startDate : $('#startDate').val(),
@@ -542,7 +558,7 @@ nb.calendar = (function() {
     onEventEdit = function ( event ) {
       var event_list;
 
-      event_list = nb.model.event.read( { _id: event.target.getAttribute( 'data-id') } );
+      event_list = nb.model.event.read( { _id: event.currentTarget.getAttribute( 'data-id') } );
 
       $( '#addEventForm input#name' )
         .val( event_list[0].name );
@@ -557,7 +573,7 @@ nb.calendar = (function() {
     };
 
     onEventRemove = function ( event ) {
-      nb.model.event.destroy( { _id: event.target.getAttribute( 'data-id') } );
+      nb.model.event.destroy( { _id: event.currentTarget.getAttribute( 'data-id') } );
     };
     onEventDelete = function () {
       console.log( 'delete complete!' );

@@ -358,14 +358,12 @@ nb.shell = (function() {
       jqueryMap.$contents.html( configMap.signup_html );
 
       // Bind keypress event to textbox
-      $('.nb-shell-input').keypress(function(event) {
+      $('.nb-shell-input').bind( 'keypress', function(event) {
         var keycode       = event.keyCode || event.which,
             $currentInput = $(this),
-            //$inputList    = $('input:enabled');
             $inputList    = $('input');
 
         if ( keycode === 13 ) {
-          //alert("enter key pushed");
           $inputList.each(function( index ) {
             if ( $(this).is($currentInput) ) {
               var targetIndex = (!event.shiftKey) ? (index + 1) : (index - 1);
@@ -468,6 +466,7 @@ nb.shell = (function() {
           jqueryMap.$startSignup.hide();
           jqueryMap.$login.hide();
           jqueryMap.$logout.show();
+          jqueryMap.$logout.bind( 'click', onClickLogout );
           jqueryMap.$messageAria
             .text( person_map.email + 'でログインしています。');
 
