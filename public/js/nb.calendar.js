@@ -58,17 +58,17 @@ nb.calendar = (function() {
     getCalendarLastDate,
     getCalendarList,
     makeCalendarHtml,
-    makeEventList,
+    makeEventTable,
     setCalendar,
     makeEventForm,
     fetchEvent,
     onClickButton,
-    onTapDate,
-    onTapAddEvent,
+    onClickDate,
+    onClickAddEvent,
     onEventcreate,
     onEventlistupdate,
-    onEventEdit,
-    onEventRemove,
+    onClickEdit,
+    onClickRemove,
     onEventDelete;
 
     //------ モジュールスコープ変数終了 -----------
@@ -268,7 +268,7 @@ nb.calendar = (function() {
                 month : month,
                 date  : date_list[i].format( 'DD' )
               },
-              onTapDate
+              onClickDate
             );
 
           $date
@@ -276,23 +276,6 @@ nb.calendar = (function() {
             .append( $('<ul />') );
 
           $date.appendTo( $row_dates );
-          /*
-          $('<div data-date="' + date_list[i].format('YYYY-MM-DD') + '"/>')
-            .addClass( 'col-xs-1' )
-            .html( $('<p>' + date_list[i].format( 'DD' ).replace( /^0+([0-9]+.*)/, '$1' ) + '</p>'))
-            .append( $('<ul />') )
-            .bind(
-              'click',
-              {
-                year  : year,
-                month : month,
-                date  : date_list[i].format( 'DD' )
-              },
-              onTapDate
-            )
-            .appendTo( $row_dates );
-          */
-
         }
         // 先月が翌月
         else {
@@ -373,21 +356,19 @@ nb.calendar = (function() {
 
 
       $horizontalForm
-        .submit( onTapAddEvent )
+        .submit( onClickAddEvent )
         .clone( true );
-        //.appendTo( $class_col_sm_8 );
-      //$('<div id="result-text"/>').appendTo( $class_col_sm_8 );
+
       $('<div id="result-text"/>').appendTo( $horizontalForm );
 
-      //$( $class_col_sm_8 ).appendTo( documnetFragment );
       $( $horizontalForm ).appendTo( documnetFragment );
 
       return documnetFragment;
     };
     //DOMメソッド/makeEventForm/終了
 
-    //DOMメソッド/makeEventList/開始
-    makeEventList = function ( dateData ) {
+    //DOMメソッド/makeEventTable/開始
+    makeEventTable = function ( dateData ) {
       var i,
           return_data,
           event_data,
@@ -406,20 +387,20 @@ nb.calendar = (function() {
       event_data = nb.model.event.read( { startDate: dateData } );
 
       if ( event_data.length === 0 ) {
-        return_data = '予定はありません。';
+        return_data = null;
       }
       else {
         $event_list = $( configMap.eventlist_html );
         for ( i = 0; i < event_data.length; ++i ) {
-          $row = $( '<tr />' );
+          $row = $( '<tr data-id="' + event_data[ i ]._id + '"></tr>' );
 
-          $td_name      = $( '<td>' + event_data[ i ].name + '</td>' );
-          $td_startDate = $( '<td>' + event_data[ i ].startDate + '</td>' );
-          $td_location  = $( '<td>' + event_data[ i ].location + '</td>' );
+          $td_name      = $( '<td data-id="name">' + event_data[ i ].name + '</td>' );
+          $td_startDate = $( '<td data-id="startDate">' + event_data[ i ].startDate + '</td>' );
+          $td_location  = $( '<td data-id="location">' + event_data[ i ].location + '</td>' );
           $td_edit      = $( '<td class="editbutton"></td>' );
 
           $button_edit  = $( '<button data-id="' + event_data[ i ]._id + '" id="event-edit" type="button"></button>' );
-          $button_edit.bind( 'click', onEventEdit );
+          $button_edit.bind( 'click', onClickEdit );
 
           $span_edit    = $( '<span class="glyphicon glyphicon-edit"></span>' );
 
@@ -429,7 +410,7 @@ nb.calendar = (function() {
           $td_remove        = $( '<td class="removebutton"></td>' );
 
           $button_remove = $( '<button data-id="' + event_data[ i ]._id + '" id="event-remove" type="button"></button>' );
-          $button_remove.bind( 'click', onEventRemove );
+          $button_remove.bind( 'click', onClickRemove );
 
           $span_ermove  = $( '<span class="glyphicon glyphicon-remove"></span>' );
 
@@ -449,7 +430,7 @@ nb.calendar = (function() {
 
       return return_data;
     };
-    //DOMメソッド/makeEventList/終了
+    //DOMメソッド/makeEventTable/終了
     //
     //DOMメソッド/setJqueryMap/開始
     setJqueryMap = function() {
@@ -485,8 +466,10 @@ nb.calendar = (function() {
       return false;
     };
 
-    // onTapDate
-    onTapDate = function( event ) {
+    // onClickDate
+    onClickDate = function( event ) {
+      var event_table;
+
       if ( jqueryMap.$col_sm_8 ) {
         jqueryMap.$col_sm_8.remove();
       }
@@ -494,18 +477,27 @@ nb.calendar = (function() {
       jqueryMap.$row.append( $('<div class="col-sm-8"></div>') );
       setJqueryMap();
 
+      event_table = makeEventTable( event.currentTarget.getAttribute( 'data-date' ) );
+
       jqueryMap.$col_sm_8
         .append(
           makeEventForm( event.currentTarget.getAttribute( 'data-date' ) )
-        )
-        .append( makeEventList( event.currentTarget.getAttribute( 'data-date' ) ) );
+        );
+
+      if ( event_table === null ) {
+        jqueryMap.$result_text.text( '予定はありません。' );
+      }
+      else {
+        jqueryMap.$col_sm_8
+          .append( event_table );
+      }
+
       setJqueryMap();
     };
-    // onTapAddEvent
+    // onClickAddEvent
     // eventのupdateの処理も行う
-    onTapAddEvent = function( event ) {
-      var event_map = {},
-          event_id;
+    onClickAddEvent = function( event ) {
+      var event_map = {};
 
       event.preventDefault();
 
@@ -527,13 +519,13 @@ nb.calendar = (function() {
 
     // event-create-completeイベントが発生したときの処理
     // event.type : 'event-create-complete'が返る
-    onEventcreate = function ( event, result ) {
-      if ( result.error_msg ) {
-        jqueryMap.$result_text.text( result.error_msg );
-      }
-      else {
-        jqueryMap.$result_text.text( 'イベントが' + result.result.ok + '件追加されました。' + event.type );
-      }
+    onEventcreate = function ( event, result_map ) {
+      if ( result_map ) {
+        jqueryMap.$result_text.empty();
+        jqueryMap.$result_text.text( 'イベントが追加されました。' + event.type );
+        $('.calendar-body [data-date=' + result_map.startDate + '] ul')
+          .append( '<li data-id="' + result_map._id + '">' + result_map.name + '</li>' ); 
+    }
 
       setTimeout( function () {
         //jqueryMap.$form_horizontal.remove();
@@ -555,7 +547,7 @@ nb.calendar = (function() {
       }
     };
 
-    onEventEdit = function ( event ) {
+    onClickEdit = function ( event ) {
       var event_list;
 
       event_list = nb.model.event.read( { _id: event.currentTarget.getAttribute( 'data-id') } );
@@ -572,11 +564,23 @@ nb.calendar = (function() {
 
     };
 
-    onEventRemove = function ( event ) {
-      nb.model.event.destroy( { _id: event.currentTarget.getAttribute( 'data-id') } );
+    // 削除ボタンをクリックしたとき
+    onClickRemove = function ( event ) {
+      var event_map,
+          event_id = event.currentTarget.getAttribute( 'data-id' );
+
+      event_map = nb.model.event.read( { _id: event_id } );
+
+      nb.model.event.destroy( event_map );
     };
-    onEventDelete = function () {
-      console.log( 'delete complete!' );
+
+    // サーバから削除の結果が送信された後
+    onEventDelete = function ( event, result_data ) {
+      var result_map = result_data.delete_object;
+
+      // <li></lib>が削除される。
+      $('.calendar-body [data-id="' + result_map._id + '"]')
+        .remove();
     };
     //------ イベントハンドラ終了 -----------------
 

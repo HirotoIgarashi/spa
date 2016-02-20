@@ -37,6 +37,7 @@ nb.model = (function() {
     person,
     event,
     _publish_eventlistread,
+    _publish_eventcreate,
     _publish_eventdelete,
     _publish_personread,
     initModule;
@@ -255,15 +256,16 @@ nb.model = (function() {
         readList,
         update,
         destroy,
-        _publish_eventcreate,
         sio = nb.data.getSio();
 
+    // サーバにデータを要求します。
+    // データを取得したら_publish_eventlistreadが呼ばれます。
     fetchRemote = function( event_map ) {
       sio.emit( 'readeventlist', event_map );
     };
 
     create  = function ( event_map ) {
-      sio.on( 'eventcreate', _publish_eventcreate );
+      //sio.on( 'eventcreate', _publish_eventcreate );
       sio.emit( 'createevent', event_map );
     };
 
@@ -297,16 +299,7 @@ nb.model = (function() {
     };
 
     destroy = function ( event_map ) {
-      console.log( event_map );
-      delete stateMap.event[ event_map._id ];
-
       sio.emit( 'deleteevent', event_map );
-    };
-
-    _publish_eventcreate = function ( result_list ) {
-      var result_map = result_list[ 0 ];
-
-      $.gevent.publish( 'eventcreate', result_map );
     };
 
     return {
@@ -326,16 +319,36 @@ nb.model = (function() {
     stateMap.event = {};
 
     for ( i = 0; i < result_map.length; ++i ) {
-      // modelにデータを保持する。
+      // modelにデータを格納する。
       stateMap.event[ result_map[ i ]._id ] = result_map[ i ];
     }
 
     $.gevent.publish( 'eventlistupdate', stateMap.event );
   };
 
-  _publish_eventdelete = function () {
+  _publish_eventcreate = function ( result_list ) {
+    var result_map = result_list[ 0 ].ops[0],
+        event_map;
 
-    $.gevent.publish( 'eventdelete', stateMap.event );
+    event_map = {
+      _id       : result_map._id,
+      name      : result_map.name,
+      startDate : result_map.startDate,
+      location  : result_map.location,
+      person_id : result_map.person_id
+    };
+
+    stateMap.event[result_map._id] = event_map;
+
+    $.gevent.publish( 'eventcreate', result_map );
+  };
+
+  _publish_eventdelete = function ( result_list ) {
+    var result_map = result_list[ 0 ];
+
+    delete stateMap.event[ result_map._id ];
+
+    $.gevent.publish( 'eventdelete', result_map );
   };
 
   _publish_personread = function ( result_list ) {
@@ -359,6 +372,7 @@ nb.model = (function() {
         sio = nb.data.getSio();
 
     sio.on( 'eventlistread',  _publish_eventlistread );
+    sio.on( 'eventcreate',    _publish_eventcreate );
     sio.on( 'eventdelete',    _publish_eventdelete );
     sio.on( 'personread',     _publish_personread );
     // 匿名ユーザを初期化する
