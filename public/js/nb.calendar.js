@@ -57,15 +57,16 @@ nb.calendar = (function() {
     getCalendarFirstDate,
     getCalendarLastDate,
     getCalendarList,
+    setCalendar,
+    fetchEvent,
     makeCalendarHtml,
     makeEventTable,
-    setCalendar,
     makeEventForm,
-    fetchEvent,
     onClickButton,
     onClickDate,
     onClickAddEvent,
     onEventcreate,
+    onEventupdate,
     onEventlistupdate,
     onClickEdit,
     onClickRemove,
@@ -533,6 +534,16 @@ nb.calendar = (function() {
         jqueryMap.$result_text.remove();
       }, 9000);
     };
+
+    // event-create-completeイベントが発生したときの処理
+    // event.type : 'eventupdate'が返る
+    onEventupdate = function ( event, result_map ) {
+
+      $('.calendar-body [data-id="' + result_map._id + '"]')
+        .replaceWith( '<li data-id="' + result_map._id + '">' + result_map.name + '</li>' ); 
+
+    };
+
     // eventlist-read-completeイベントが発生したときの処理
     // event.type : 'eventlist-read-complete'が返る
     //
@@ -638,6 +649,7 @@ nb.calendar = (function() {
           .append( currentDate.format( 'YYYY年MM月DD日dddd' ) );
 
         $.gevent.subscribe( $container, 'eventcreate', onEventcreate );
+        $.gevent.subscribe( $container, 'eventupdate', onEventupdate );
         $.gevent.subscribe( $container, 'eventdelete', onEventDelete );
         $.gevent.subscribe( $container, 'eventlistupdate', onEventlistupdate );
       }

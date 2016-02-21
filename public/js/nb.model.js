@@ -38,6 +38,7 @@ nb.model = (function() {
     event,
     _publish_eventlistread,
     _publish_eventcreate,
+    _publish_eventupdate,
     _publish_eventdelete,
     _publish_personread,
     initModule;
@@ -343,6 +344,14 @@ nb.model = (function() {
     $.gevent.publish( 'eventcreate', result_map );
   };
 
+  _publish_eventupdate = function ( result_data ) {
+    var result_map = result_data[ 0 ].update_object;
+
+    stateMap.event[ result_map._id ] = result_map;
+
+    $.gevent.publish( 'eventupdate', result_map );
+  };
+
   _publish_eventdelete = function ( result_list ) {
     var result_map = result_list[ 0 ];
 
@@ -373,6 +382,7 @@ nb.model = (function() {
 
     sio.on( 'eventlistread',  _publish_eventlistread );
     sio.on( 'eventcreate',    _publish_eventcreate );
+    sio.on( 'eventupdate',    _publish_eventupdate );
     sio.on( 'eventdelete',    _publish_eventdelete );
     sio.on( 'personread',     _publish_personread );
     // 匿名ユーザを初期化する
