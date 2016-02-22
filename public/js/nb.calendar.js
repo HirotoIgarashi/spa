@@ -29,15 +29,17 @@ nb.calendar = (function() {
             + '</ul>'
           + '</li>'
         + '</ul>',
-        eventlist_html  : String()
-          + '<table id="eventlist">'
-            + '<tr>'
-              + '<th>イベント名</th>'
-              + '<th>日時</th>'
-              + '<th>場所</th>'
-              + '<th>編集</th>'
-              + '<th>削除</th>'
-            + '</tr>'
+        eventtable_html  : String()
+          + '<table id="event-table">'
+            + '<tbody id="event-tbody">'
+              + '<tr>'
+                + '<th>イベント名</th>'
+                + '<th>日時</th>'
+                + '<th>場所</th>'
+                + '<th>編集</th>'
+                + '<th>削除</th>'
+              + '</tr>'
+            + '</tbody>'
           + '</table>'
     },
     stateMap = {
@@ -61,6 +63,7 @@ nb.calendar = (function() {
     fetchEvent,
     makeCalendarHtml,
     makeEventTable,
+    makeEventTr,
     makeEventForm,
     onClickButton,
     onClickDate,
@@ -347,7 +350,7 @@ nb.calendar = (function() {
         .appendTo( $form_group_location );
 
       // Submit
-      $('<div class="col-sm-offset-2 col-sm-10"><button id="addEventButton" submit" class="btn btn-default">保存</buttondiv>')
+      $('<div class="col-sm-offset-2 col-sm-10"><button id="addEventButton" submit" class="btn btn-default">追加</button></div>')
         .appendTo( $form_group_submit );
 
       $form_group_name.clone().appendTo( $horizontalForm );
@@ -373,7 +376,31 @@ nb.calendar = (function() {
       var i,
           return_data,
           event_data,
-          $row,
+          $tr,
+          $event_table;
+
+      event_data = nb.model.event.read( { startDate: dateData } );
+
+      if ( event_data.length === 0 ) {
+        return_data = null;
+      }
+      else {
+        $event_table = $( configMap.eventtable_html );
+
+        for ( i = 0; i < event_data.length; ++i ) {
+          $tr = makeEventTr( event_data[ i ] );
+          $event_table
+            .append( $tr );
+        }
+        return_data = $event_table;
+      }
+
+      return return_data;
+    };
+    //DOMメソッド/makeEventTable/終了
+    //DOMメソッド/makeEventTr/開始
+    makeEventTr = function( event_item ) {
+      var $tr,
           $td_name,
           $td_startDate,
           $td_location,
@@ -382,56 +409,42 @@ nb.calendar = (function() {
           $span_edit,
           $td_remove,
           $button_remove,
-          $span_ermove,
-          $event_list;
+          $span_remove;
 
-      event_data = nb.model.event.read( { startDate: dateData } );
+      $tr = $( '<tr data-id="' + event_item._id + '"></tr>' );
 
-      if ( event_data.length === 0 ) {
-        return_data = null;
-      }
-      else {
-        $event_list = $( configMap.eventlist_html );
-        for ( i = 0; i < event_data.length; ++i ) {
-          $row = $( '<tr data-id="' + event_data[ i ]._id + '"></tr>' );
+      $td_name      = $( '<td data-id="name">' + event_item.name + '</td>' );
+      $td_startDate = $( '<td data-id="startDate">' + event_item.startDate + '</td>' );
+      $td_location  = $( '<td data-id="location">' + event_item.location + '</td>' );
+      $td_edit      = $( '<td class="editbutton"></td>' );
 
-          $td_name      = $( '<td data-id="name">' + event_data[ i ].name + '</td>' );
-          $td_startDate = $( '<td data-id="startDate">' + event_data[ i ].startDate + '</td>' );
-          $td_location  = $( '<td data-id="location">' + event_data[ i ].location + '</td>' );
-          $td_edit      = $( '<td class="editbutton"></td>' );
+      $button_edit  = $( '<button data-id="' + event_item._id + '" id="event-edit" type="button"></button>' );
+      $button_edit.on( 'click', onClickEdit );
 
-          $button_edit  = $( '<button data-id="' + event_data[ i ]._id + '" id="event-edit" type="button"></button>' );
-          $button_edit.bind( 'click', onClickEdit );
+      $span_edit    = $( '<span class="glyphicon glyphicon-edit"></span>' );
 
-          $span_edit    = $( '<span class="glyphicon glyphicon-edit"></span>' );
+      $span_edit.appendTo( $button_edit );
+      $button_edit.appendTo( $td_edit );
 
-          $span_edit.appendTo( $button_edit );
-          $button_edit.appendTo( $td_edit );
+      $td_remove        = $( '<td class="removebutton"></td>' );
 
-          $td_remove        = $( '<td class="removebutton"></td>' );
+      $button_remove = $( '<button data-id="' + event_item._id + '" id="event-remove" type="button"></button>' );
+      $button_remove.on( 'click', onClickRemove );
 
-          $button_remove = $( '<button data-id="' + event_data[ i ]._id + '" id="event-remove" type="button"></button>' );
-          $button_remove.bind( 'click', onClickRemove );
+      $span_remove  = $( '<span class="glyphicon glyphicon-remove"></span>' );
 
-          $span_ermove  = $( '<span class="glyphicon glyphicon-remove"></span>' );
+      $span_remove.appendTo( $button_remove );
+      $button_remove.appendTo( $td_remove );
 
-          $span_ermove.appendTo( $button_remove );
-          $button_remove.appendTo( $td_remove );
+      $td_name.appendTo( $tr );
+      $td_startDate.appendTo( $tr );
+      $td_location.appendTo( $tr );
+      $td_edit.appendTo( $tr );
+      $td_remove.appendTo( $tr );
 
-          $td_name.appendTo( $row );
-          $td_startDate.appendTo( $row );
-          $td_location.appendTo( $row );
-          $td_edit.appendTo( $row );
-          $td_remove.appendTo( $row );
-          $event_list
-            .append( $row );
-        }
-        return_data = $event_list;
-      }
-
-      return return_data;
+      return $tr;
     };
-    //DOMメソッド/makeEventTable/終了
+    //DOMメソッド/makeEventTr/終了
     //
     //DOMメソッド/setJqueryMap/開始
     setJqueryMap = function() {
@@ -521,27 +534,55 @@ nb.calendar = (function() {
     // event-create-completeイベントが発生したときの処理
     // event.type : 'event-create-complete'が返る
     onEventcreate = function ( event, result_map ) {
+      var event_table;
+
+      // カレンダーに追加する。
+      $('.calendar-body [data-date=' + result_map.startDate + '] ul')
+        .append( '<li data-id="' + result_map._id + '">' + result_map.name + '</li>' ); 
+
+      // イベントリストに追加する。
+      event_table = makeEventTable( result_map.startDate );
+
+      if ( jqueryMap.$col_sm_8.find( '#event-table' ).length === 0 ) {
+        jqueryMap.$col_sm_8
+          .append( event_table );
+      }
+      else {
+        jqueryMap.$col_sm_8.find( '#event-table' )
+          .replaceWith( event_table );
+      }
+
+      /*
       if ( result_map ) {
         jqueryMap.$result_text.empty();
         jqueryMap.$result_text.text( 'イベントが追加されました。' + event.type );
         $('.calendar-body [data-date=' + result_map.startDate + '] ul')
           .append( '<li data-id="' + result_map._id + '">' + result_map.name + '</li>' ); 
     }
-
-      setTimeout( function () {
-        //jqueryMap.$form_horizontal.remove();
-        jqueryMap.$col_sm_8.remove();
-        jqueryMap.$result_text.remove();
-      }, 9000);
+    */
     };
 
     // event-create-completeイベントが発生したときの処理
     // event.type : 'eventupdate'が返る
     onEventupdate = function ( event, result_map ) {
+      var $tr;
 
+      // カレンダーのnameを書き換える
       $('.calendar-body [data-id="' + result_map._id + '"]')
         .replaceWith( '<li data-id="' + result_map._id + '">' + result_map.name + '</li>' ); 
 
+      // カレンダーテーブルを書き換える
+      $tr = makeEventTr( result_map );
+      // event tableを変更する。
+      $('#event-table [data-id="' + result_map._id + '"]')
+        .replaceWith( $tr );
+
+      //  フォームからidを削除する。
+      $( '#addEventForm' )
+        .removeAttr('data-id');
+
+      // ボタンの名称を元に戻す。
+      $( '#addEventButton' ).text( '追加' );
     };
 
     // eventlist-read-completeイベントが発生したときの処理
@@ -555,6 +596,21 @@ nb.calendar = (function() {
           $('.calendar-body [data-date=' + result_map[ id ].startDate + '] ul')
             .append( '<li data-id="' + result_map[ id ]._id + '">' + result_map[ id ].name + '</li>' ); 
         }
+      }
+    };
+
+    // サーバから削除の結果が送信された後
+    onEventDelete = function ( event, result_map ) {
+      // カレンダーから<li></lib>が削除される。
+      $('.calendar-body [data-id="' + result_map._id + '"]')
+        .remove();
+
+      // event tableから削除する。
+      $('#event-table [data-id="' + result_map._id + '"]')
+        .remove();
+
+      if ( $('#event-tbody tr').length === 1 ) {
+        $('#event-table').remove();
       }
     };
 
@@ -573,6 +629,8 @@ nb.calendar = (function() {
       $( '#addEventForm' )
         .attr('data-id', event_list[0]._id );
 
+      // ボタンの名称を変更する。
+      $( '#addEventButton' ).text( '変更' );
     };
 
     // 削除ボタンをクリックしたとき
@@ -585,14 +643,6 @@ nb.calendar = (function() {
       nb.model.event.destroy( event_map );
     };
 
-    // サーバから削除の結果が送信された後
-    onEventDelete = function ( event, result_data ) {
-      var result_map = result_data.delete_object;
-
-      // <li></lib>が削除される。
-      $('.calendar-body [data-id="' + result_map._id + '"]')
-        .remove();
-    };
     //------ イベントハンドラ終了 -----------------
 
     //------ パブリックメソッド開始 ---------------

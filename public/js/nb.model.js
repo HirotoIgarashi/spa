@@ -353,7 +353,7 @@ nb.model = (function() {
   };
 
   _publish_eventdelete = function ( result_list ) {
-    var result_map = result_list[ 0 ];
+    var result_map = result_list[ 0 ].delete_object;
 
     delete stateMap.event[ result_map._id ];
 
