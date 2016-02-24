@@ -328,20 +328,27 @@ nb.model = (function() {
   };
 
   _publish_eventcreate = function ( result_list ) {
-    var result_map = result_list[ 0 ].ops[0],
+    var result_map,
         event_map;
 
-    event_map = {
-      _id       : result_map._id,
-      name      : result_map.name,
-      startDate : result_map.startDate,
-      location  : result_map.location,
-      person_id : result_map.person_id
-    };
+    if ( result_list[ 0 ].error_msg ) {
+      console.log( result_list[ 0 ].error_msg );
+    }
+    else {
+      result_map = result_list[ 0 ].ops[ 0 ];
 
-    stateMap.event[result_map._id] = event_map;
+      event_map = {
+        _id       : result_map._id,
+        name      : result_map.name,
+        startDate : result_map.startDate,
+        location  : result_map.location,
+        person_id : result_map.person_id
+      };
 
-    $.gevent.publish( 'eventcreate', result_map );
+      stateMap.event[result_map._id] = event_map;
+
+      $.gevent.publish( 'eventcreate', result_map );
+    }
   };
 
   _publish_eventupdate = function ( result_data ) {

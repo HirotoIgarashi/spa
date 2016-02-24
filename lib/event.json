@@ -17,13 +17,15 @@
       "maxlendth" : 127
     },
     "endDate"   : {
+      "required"  : false,
       "type"      : "string",
-      "minLength" : 2,
+      "minLength" : 0,
       "maxlendth" : 127
     },
-    "location "   : {
+    "location"    : {
+      "required"  : false,
       "type"      : "string",
-      "minLength" : 2,
+      "minLength" : 0,
       "maxlendth" : 127
     }
   }
