@@ -34,7 +34,7 @@ nb.calendar = (function() {
             + '<tbody id="event-tbody">'
               + '<tr>'
                 + '<th>イベント名</th>'
-                + '<th>日時</th>'
+                + '<th>開始日時</th>'
                 + '<th>場所</th>'
                 + '<th>編集</th>'
                 + '<th>削除</th>'
@@ -324,7 +324,10 @@ nb.calendar = (function() {
       var documnetFragment,
           $horizontalForm    = $('<form id="addEventForm" class="form-horizontal"></form>'),
           $form_group_name      = $('<div class="form-group"></div>'),
-          $form_group_date      = $('<div class="form-group"></div>'),
+          $form_group_startDate = $('<div class="form-group"></div>'),
+          $form_group_startTime = $('<div class="form-group"></div>'),
+          $form_group_endDate   = $('<div class="form-group"></div>'),
+          $form_group_endTime   = $('<div class="form-group"></div>'),
           $form_group_location  = $('<div class="form-group"></div>'),
           $form_group_submit    = $('<div class="form-group"></div>');
 
@@ -337,11 +340,27 @@ nb.calendar = (function() {
       $('<div class="col-sm-10"><input type="text" class="form-control" id="name" placefolder="イベント名" required/></div>')
         .appendTo( $form_group_name );
 
-      // 日時
-      $('<label for="startDate" class="col-sm-2 control-label">日時:</label>')
-        .appendTo( $form_group_date );
-      $('<div class="col-sm-10"><input type="text" class="form-control" id="startDate" placefolder="日時" value="' + dateData + '"/></div>')
-        .appendTo( $form_group_date );
+      // 開始日
+      $('<label for="startDate" class="col-sm-2 control-label">開始日:</label>')
+        .appendTo( $form_group_startDate );
+      $('<div class="col-sm-10"><input type="date" class="form-control" id="startDate" placefolder="開始日" value="' + dateData + '" required/>')
+        .appendTo( $form_group_startDate );
+      // 開始時間
+      $('<label for="startTime" class="col-sm-2 control-label">開始時間:</label>')
+        .appendTo( $form_group_startTime );
+      $('<div class="col-sm-10"><input type="time" class="form-control" id="startTime" placefolder="時間"/>')
+        .appendTo( $form_group_startTime );
+
+      // 終了日
+      $('<label for="startDate" class="col-sm-2 control-label">終了日:</label>')
+        .appendTo( $form_group_endDate );
+      $('<div class="col-sm-10"><input type="date" class="form-control" id="endDate" placefolder="終了日" />')
+        .appendTo( $form_group_endDate );
+      // 終了時間
+      $('<label for="endTime" class="col-sm-2 control-label">終了時間:</label>')
+        .appendTo( $form_group_endTime );
+      $('<div class="col-sm-10"><input type="time" class="form-control" id="endTime" placefolder="終了時間"/>')
+        .appendTo( $form_group_endTime );
 
       // 場所
       $('<label for="location" class="col-sm-2 control-label">場所:</label>')
@@ -354,7 +373,10 @@ nb.calendar = (function() {
         .appendTo( $form_group_submit );
 
       $form_group_name.clone().appendTo( $horizontalForm );
-      $form_group_date.clone().appendTo( $horizontalForm );
+      $form_group_startDate.clone().appendTo( $horizontalForm );
+      $form_group_startTime.clone().appendTo( $horizontalForm );
+      $form_group_endDate.clone().appendTo( $horizontalForm );
+      $form_group_endTime.clone().appendTo( $horizontalForm );
       $form_group_location.clone().appendTo( $horizontalForm );
       $form_group_submit.clone().appendTo( $horizontalForm );
 
@@ -379,7 +401,7 @@ nb.calendar = (function() {
           $tr,
           $event_table;
 
-      event_data = nb.model.event.read( { startDate: dateData } );
+      event_data = nb.model.event.read( { startDate: dateData.split( 'T' )[ 0 ] } );
 
       if ( event_data.length === 0 ) {
         return_data = null;
@@ -409,12 +431,17 @@ nb.calendar = (function() {
           $span_edit,
           $td_remove,
           $button_remove,
-          $span_remove;
+          $span_remove,
+          startDate,
+          startTime;
+
+      startDate = event_item.startDate.split( 'T' )[ 0 ];
+      startTime = event_item.startDate.split( 'T' )[ 1 ] || '';
 
       $tr = $( '<tr data-id="' + event_item._id + '"></tr>' );
 
       $td_name      = $( '<td data-id="name">' + event_item.name + '</td>' );
-      $td_startDate = $( '<td data-id="startDate">' + event_item.startDate + '</td>' );
+      $td_startDate = $( '<td data-id="startDate">' + startDate + ' ' + startTime + '</td>' );
       $td_location  = $( '<td data-id="location">' + event_item.location + '</td>' );
       $td_edit      = $( '<td class="editbutton"></td>' );
 
@@ -521,7 +548,8 @@ nb.calendar = (function() {
         _id       : event.currentTarget.getAttribute( 'data-id' ),
         person_id : stateMap.person._id,
         name      : $('#name').val(),
-        startDate : $('#startDate').val(),
+        startDate : $('#startDate').val() + 'T' + $('#startTime').val(),
+        endDate   : $('#endDate').val() + 'T' + $('#endTime').val(),
         location  : $('#location').val()
       };
 
@@ -534,14 +562,15 @@ nb.calendar = (function() {
     // event-create-completeイベントが発生したときの処理
     // event.type : 'event-create-complete'が返る
     onEventcreate = function ( event, result_map ) {
-      var event_table;
+      var event_table,
+          startDate = result_map.startDate.split( 'T' )[ 0 ];
 
       // カレンダーに追加する。
-      $('.calendar-body [data-date=' + result_map.startDate + '] ul')
+      $('.calendar-body [data-date=' + startDate + '] ul')
         .append( '<li data-id="' + result_map._id + '">' + result_map.name + '</li>' ); 
 
       // イベントリストに追加する。
-      event_table = makeEventTable( result_map.startDate );
+      event_table = makeEventTable( startDate );
 
       if ( jqueryMap.$col_sm_8.find( '#event-table' ).length === 0 ) {
         jqueryMap.$col_sm_8
@@ -551,15 +580,6 @@ nb.calendar = (function() {
         jqueryMap.$col_sm_8.find( '#event-table' )
           .replaceWith( event_table );
       }
-
-      /*
-      if ( result_map ) {
-        jqueryMap.$result_text.empty();
-        jqueryMap.$result_text.text( 'イベントが追加されました。' + event.type );
-        $('.calendar-body [data-date=' + result_map.startDate + '] ul')
-          .append( '<li data-id="' + result_map._id + '">' + result_map.name + '</li>' ); 
-    }
-    */
     };
 
     // event-create-completeイベントが発生したときの処理
@@ -589,11 +609,14 @@ nb.calendar = (function() {
     // event.type : 'eventlist-read-complete'が返る
     //
     onEventlistupdate = function ( event, result_map ) {
-      var id;
+      var id,
+          startDate;
 
       for ( id in result_map ) {
         if ( result_map.hasOwnProperty( id ) ) {
-          $('.calendar-body [data-date=' + result_map[ id ].startDate + '] ul')
+          startDate = result_map[ id ].startDate.split('T')[ 0 ];
+
+          $('.calendar-body [data-date=' + startDate + '] ul')
             .append( '<li data-id="' + result_map[ id ]._id + '">' + result_map[ id ].name + '</li>' ); 
         }
       }
@@ -622,7 +645,24 @@ nb.calendar = (function() {
       $( '#addEventForm input#name' )
         .val( event_list[0].name );
       $( '#addEventForm input#startDate' )
-        .val( event_list[0].startDate );
+        .val( event_list[0].startDate.split( 'T' )[ 0 ] );
+      $( '#addEventForm input#startTime' )
+        .val( event_list[0].startDate.split( 'T' )[ 1 ] );
+
+      // 終了日があればその値を使い、なければ開始日を使う
+      if ( event_list[ 0 ].endDate ) {
+        $( '#addEventForm input#endDate' )
+          .val( event_list[0].endDate.split( 'T' )[ 0 ] );
+        $( '#addEventForm input#endTime' )
+          .val( event_list[0].endDate.split( 'T' )[ 1 ] );
+      }
+      else {
+        $( '#addEventForm input#endDate' )
+          .val( event_list[0].startDate.split( 'T' )[ 0 ] );
+        $( '#addEventForm input#endTime' )
+          .val( event_list[0].startDate.split( 'T' )[ 1 ] );
+      }
+
       $( '#addEventForm input#location' )
         .val( event_list[0].location );
 

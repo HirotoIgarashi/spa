@@ -279,7 +279,7 @@ nb.model = (function() {
 
       for ( id in stateMap.event ) {
         if ( stateMap.event.hasOwnProperty( id ) ) {
-          if ( stateMap.event[ id ][ find_key ] === event_map[ find_key ] ) {
+          if ( stateMap.event[ id ][ find_key ].match( event_map[ find_key ] )) {
             return_map.push( stateMap.event[ id ] );
           }
         }
