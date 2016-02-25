@@ -227,7 +227,7 @@ nb.calendar = (function() {
       $('<li/>')
         .addClass( 'previous' )
         .append( '<a><span class="glyphicon glyphicon-chevron-left pull-left"/></a>' )
-        .bind('click',
+        .on('click',
               {
                 year: previous_month.format( 'YYYY' ),
                 month: previous_month.format( 'MM' )
@@ -242,7 +242,7 @@ nb.calendar = (function() {
 
       $('<li/>')
         .addClass( 'next' )
-        .bind(  'click',
+        .on(  'click',
                 {
                   year  : next_month.format( 'YYYY' ),
                   month : next_month.format( 'MM' )
@@ -711,6 +711,13 @@ nb.calendar = (function() {
       var event_list;
 
       event_list = nb.model.event.read( { _id: event.currentTarget.getAttribute( 'data-id') } );
+
+      // イベントフォームを表示する。
+      jqueryMap.$event_form.show();
+      $('.glyphicon-plus')
+        .hide();
+      $('.glyphicon-minus')
+        .show();
 
       $( '#addEventForm input#name' )
         .val( event_list[0].name );
