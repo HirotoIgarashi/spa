@@ -29,6 +29,23 @@ nb.calendar = (function() {
             + '</ul>'
           + '</li>'
         + '</ul>',
+        event_form_html  : String()
+            + '<div class="col-sm-8">'
+              + '<h4 id="select-date" />'
+              + '<p id="event-exist" />'
+              + '<div id="div-event-table">'
+              + '</div>'
+              + '<a>'
+                + '<span class="glyphicon glyphicon-plus">'
+                + '</span>'
+              + '</a>'
+              + '<a>'
+                + '<span class="glyphicon glyphicon-minus">'
+                + '</span>'
+              + '</a>'
+              + '<div id="div-add-event-form">'
+              + '</div>'
+            + '</div>',
         eventtable_html  : String()
           + '<table id="event-table">'
             + '<tbody id="event-tbody">'
@@ -484,7 +501,11 @@ nb.calendar = (function() {
         $wrapper          : $container.find( '.wrapper' ),
         $form_horizontal  : $container.find( '.form-horizontal' ),
         $col_sm_8         : $container.find( '.col-sm-8' ),
-        $result_text      : $container.find( '#result-text' )
+        $result_text      : $container.find( '#result-text' ),
+        $select_date      : $container.find( '#select-date' ),
+        $event_exist      : $container.find( '#event-exist' ),
+        $event_table      : $container.find( '#div-event-table' ),
+        $event_form       : $container.find( '#div-add-event-form' )
       };
     };
     //DOMメソッド/setJqueryMap/終了
@@ -509,47 +530,96 @@ nb.calendar = (function() {
 
     // onClickDate
     onClickDate = function( event ) {
-      var event_table;
+      var event_table,
+          date_array;
 
       if ( jqueryMap.$col_sm_8 ) {
         jqueryMap.$col_sm_8.remove();
       }
       //jqueryMap.$row
-      jqueryMap.$row.append( $('<div class="col-sm-8"></div>') );
+      jqueryMap.$row.append( configMap.event_form_html );
+
       setJqueryMap();
+
+      date_array = event.currentTarget.getAttribute( 'data-date').split('-');
+
+      jqueryMap.$select_date.html( date_array[0] + '年' + date_array[1] + '月' + date_array[2] + '日' );
 
       event_table = makeEventTable( event.currentTarget.getAttribute( 'data-date' ) );
 
-      jqueryMap.$col_sm_8
-        .append(
-          makeEventForm( event.currentTarget.getAttribute( 'data-date' ) )
-        );
-
+      // その日の登録がなければ'予定はありません'を表示する。
       if ( event_table === null ) {
-        jqueryMap.$result_text.text( '予定はありません。' );
+        jqueryMap.$event_exist.text( '予定はありません。' );
       }
       else {
-        jqueryMap.$col_sm_8
-          .append( event_table );
+        jqueryMap.$event_table
+          .html( event_table );
       }
 
-      setJqueryMap();
+      // イベントフォームを非表示に
+      jqueryMap.$event_form
+        .html(
+          makeEventForm( event.currentTarget.getAttribute( 'data-date' ) )
+        )
+        .hide();
+      // マイナスボタンを非表示に
+      $('.glyphicon-minus')
+        .hide();
+
+      $('.glyphicon-plus').on('click', function() {
+        jqueryMap.$event_form.show();
+        $('.glyphicon-plus')
+          .hide();
+        $('.glyphicon-minus')
+          .show();
+      });
+
+      $('.glyphicon-minus').on('click', function() {
+        jqueryMap.$event_form.hide();
+        $('.glyphicon-minus')
+          .hide();
+        $('.glyphicon-plus')
+          .show();
+      });
+
     };
     // onClickAddEvent
     // eventのupdateの処理も行う
     onClickAddEvent = function( event ) {
-      var event_map = {};
+      var event_map = {},
+          startDate,
+          endDate;
 
       event.preventDefault();
 
       stateMap.person = nb.model.person.read();
 
+      // startTimeの設定
+      if ( ! $('#startTime').val() ) {
+        startDate = $('#startDate').val();
+      }
+      else {
+        startDate = $('#startDate').val() + 'T' + $('#startTime').val();
+      }
+      // endTimeの設定
+      if ( $('#endDate').val() ) {
+        if ( $('#endTime').val() ) {
+          endDate = $('#endDate').val() + 'T' + $('#endTime').val();
+        }
+        else {
+          endDate = $('#endDate').val();
+        }
+      }
+      else {
+        endDate = '';
+      }
+
       event_map = {
         _id       : event.currentTarget.getAttribute( 'data-id' ),
         person_id : stateMap.person._id,
         name      : $('#name').val(),
-        startDate : $('#startDate').val() + 'T' + $('#startTime').val(),
-        endDate   : $('#endDate').val() + 'T' + $('#endTime').val(),
+        startDate : startDate,
+        endDate   : endDate,
         location  : $('#location').val()
       };
 
