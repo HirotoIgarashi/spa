@@ -386,7 +386,7 @@ nb.calendar = (function() {
         .appendTo( $form_group_location );
 
       // Submit
-      $('<div class="col-sm-offset-2 col-sm-10"><button id="addEventButton" submit" class="btn btn-default">追加</button></div>')
+      $('<div class="col-sm-offset-2 col-sm-10"><button id="addEventButton"  class="btn btn-default">追加</button></div>')
         .appendTo( $form_group_submit );
 
       $form_group_name.clone().appendTo( $horizontalForm );
@@ -625,6 +625,8 @@ nb.calendar = (function() {
 
       // イベントの登録
       nb.model.event.create( event_map );
+
+      $('#div-add-event-form').find(':text').val('');
 
       return false;
     };

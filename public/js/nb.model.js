@@ -25,7 +25,8 @@ nb.model = (function() {
       people_db       : TAFFY(),
       user            : null,
       person          : null,
-      event           : {}
+      event           : {},
+      localBusiness   : {}
     },
     isFakeData = false,
     personProto,
@@ -35,12 +36,17 @@ nb.model = (function() {
     removePerson,
     people,
     person,
+    _publish_personread,
     event,
     _publish_eventlistread,
     _publish_eventcreate,
     _publish_eventupdate,
     _publish_eventdelete,
-    _publish_personread,
+    localBusiness,
+    _publish_localbusiness_read,
+    _publish_localbusiness_create,
+    _publish_localbusiness_update,
+    _publish_localbusiness_delete,
     initModule;
 
   personProto = {
@@ -55,19 +61,6 @@ nb.model = (function() {
   makeCid = function () {
     return 'c' + String( stateMap.cid_serial++ );
   };
-
-  /*
-  clearPeopleDb = function () {
-    var user = stateMap.user;
-
-    stateMap.people_db      = TAFFY();
-    stateMap.people_cid_map = {};
-    if ( user ) {
-      stateMap.people_db.insert( user );
-      stateMap.people_cid_map[ user.cid ] = user;
-    }
-  };
-  */
 
   completeLogin = function ( user_list ) {
     var user_map = user_list[ 0 ];
@@ -254,45 +247,36 @@ nb.model = (function() {
     var fetchRemote,
         create,
         read,
-        readList,
         update,
         destroy,
         sio = nb.data.getSio();
 
     // サーバにデータを要求します。
-    // データを取得したら_publish_eventlistreadが呼ばれます。
+    // データを取得したら_publish_eventstreadが呼ばれます。
     fetchRemote = function( event_map ) {
       sio.emit( 'readeventlist', event_map );
     };
 
     create  = function ( event_map ) {
-      //sio.on( 'eventcreate', _publish_eventcreate );
       sio.emit( 'createevent', event_map );
     };
 
     read    = function ( event_map ) {
       var id,
           find_key,
-          return_map = [];
+          return_list = [];
 
       find_key = Object.keys( event_map )[ 0 ];
 
       for ( id in stateMap.event ) {
         if ( stateMap.event.hasOwnProperty( id ) ) {
           if ( stateMap.event[ id ][ find_key ].match( event_map[ find_key ] )) {
-            return_map.push( stateMap.event[ id ] );
+            return_list.push( stateMap.event[ id ] );
           }
         }
       }
       
-      return return_map;
-    };
-
-    readList = function ( event_map ) {
-      //var sio = nb.data.getSio();
-
-
-      sio.emit( 'readeventlist', event_map );
+      return return_list;
     };
 
     update  = function ( event_map ) {
@@ -307,10 +291,63 @@ nb.model = (function() {
       fetchRemote : fetchRemote,
       create      : create,
       read        : read,
-      readList    : readList,
       update      : update,
       destroy     : destroy
     };
+  }());
+
+  localBusiness = (function () {
+    var fetch,
+        create,
+        read,
+        update,
+        destroy,
+        sio = nb.data.getSio();
+
+    // サーバにデータを要求する。
+    fetch     = function ( localBusiness_map ) {
+      sio.emit( 'read:localBusiness', localBusiness_map );
+    };
+
+    create    = function ( localBusiness_map ) {
+      sio.emit( 'create:localBusiness', localBusiness_map );
+    };
+    
+    read      = function ( localBusiness_map ) {
+      var id,
+          find_key,
+          return_list = [];
+
+      find_key = Object.keys( localBusiness_map )[ 0 ];
+
+      for ( id in stateMap.localBusiness ) {
+        if ( stateMap.localBusiness.hasOwnProperty( id ) ) {
+          if ( stateMap.localBusiness[ id ][ find_key ].match( localBusiness_map[ find_key ] )) {
+            return_list.push( stateMap.localBusiness[ id ] );
+          }
+        }
+      }
+      
+      return return_list;
+
+    };
+
+    update    = function ( localBusiness_map ) {
+      sio.emit( 'update:localBusiness', localBusiness_map );
+    };
+
+    destroy   = function ( localBusiness_map ) {
+      sio.emit( 'delete:localBusiness', localBusiness_map );
+    };
+
+    return {
+      fetch     : fetch,
+      create    : create,
+      read      : read,
+      update    : update,
+      destroy   : destroy
+    };
+
   }());
 
   _publish_eventlistread = function ( result_list ) {
@@ -351,8 +388,8 @@ nb.model = (function() {
     }
   };
 
-  _publish_eventupdate = function ( result_data ) {
-    var result_map = result_data[ 0 ].update_object;
+  _publish_eventupdate = function ( result_list ) {
+    var result_map = result_list[ 0 ].update_object;
 
     stateMap.event[ result_map._id ] = result_map;
 
@@ -380,51 +417,92 @@ nb.model = (function() {
     $.gevent.publish( 'personread', stateMap.person );
   };
 
+  _publish_localbusiness_read = function ( result_list ) {
+    var i,
+        result_map = result_list[ 0 ];
+
+    if ( result_map.error_msg ) {
+      $.gevent.publish( 'localBusiness:read:error', result_map.error_msg );
+    }
+    else {
+      stateMap.localBusiness = {};
+
+      for ( i = 0; i < result_map.length; ++i ) {
+        // modelにデータを格納する。
+        stateMap.localBusiness[ result_map[ i ]._id ] = result_map[ i ];
+      }
+
+      $.gevent.publish( 'localBusiness:read', stateMap.localBusiness );
+    }
+  };
+
+  _publish_localbusiness_create   = function ( result_list ) {
+    var result_map,
+        localBusiness_map;
+
+    if ( result_list[ 0 ].error_msg ) {
+      result_map = result_list[ 0 ];
+      console.log( result_map.error_msg );
+      $.gevent.publish( 'localBusiness:read:error', result_map.error_msg );
+    }
+    else {
+      result_map = result_list[ 0 ].ops[ 0 ];
+
+      localBusiness_map = {
+        _id       : result_map._id,
+        name      : result_map.name,
+        startDate : result_map.startDate,
+        location  : result_map.location,
+        person_id : result_map.person_id
+      };
+
+      stateMap.localBusiness[result_map._id] = localBusiness_map;
+      $.gevent.publish( 'localBusiness:create', result_map );
+    }
+
+  };
+
+  _publish_localbusiness_update   = function ( result_list ) {
+    var result_map = result_list[ 0 ].update_object;
+
+    stateMap.localBusiness[ result_map._id ] = result_map;
+
+    $.gevent.publish( 'localBusiness:update', result_map );
+  };
+
+  _publish_localbusiness_delete   = function ( result_list ) {
+    var result_map = result_list[ 0 ].delete_object;
+
+    delete stateMap.localBusiness[ result_map._id ];
+
+    $.gevent.publish( 'localBusiness:delete', result_map );
+  };
+
   //パブリックメソッド/initModule/開始
   initModule = function () {
-    var i,
-        people_list,
-        person_map,
-        sio = nb.data.getSio();
+    var sio = nb.data.getSio();
 
-    sio.on( 'eventlistread',  _publish_eventlistread );
-    sio.on( 'eventcreate',    _publish_eventcreate );
-    sio.on( 'eventupdate',    _publish_eventupdate );
-    sio.on( 'eventdelete',    _publish_eventdelete );
-    sio.on( 'personread',     _publish_personread );
-    // 匿名ユーザを初期化する
-    /*
-    stateMap.anon_user = makePerson({
-      cid         : configMap.anon_id,
-      id          : configMap.anon_id,
-      first_name  : 'anonymous'
-    });
-    stateMap.user = stateMap.anon_user;
-    */
+    sio.on( 'eventlistread',  _publish_eventlistread  );
+    sio.on( 'eventcreate',    _publish_eventcreate    );
+    sio.on( 'eventupdate',    _publish_eventupdate    );
+    sio.on( 'eventdelete',    _publish_eventdelete    );
+    sio.on( 'personread',     _publish_personread     );
 
-    if ( isFakeData ) {
-      people_list = nb.fake.getPeopleList();
-      for ( i = 0; i < people_list.length; ++i ) {
-        person_map = people_list[ i ];
-        makePerson({
-          cid : person_map._id,
-          id  : person_map._id,
-          first_name  : person_map.first_name,
-          last_name   : person_map.last_name,
-          email       : person_map.email,
-          password    : person_map.passw
-        });
-      }
-    }
+    sio.on( 'localBusiness:read',   _publish_localbusiness_read   );
+    sio.on( 'localBusiness:create', _publish_localbusiness_create );
+    sio.on( 'localBusiness:update', _publish_localbusiness_update );
+    sio.on( 'localBusiness:delete', _publish_localbusiness_delete );
+
   };
   //パブリックメソッド/initModule/終了
 
   //パブリックメソッドを返す
   return {
-    initModule  : initModule,
-    people      : people,
-    person      : person,
-    event       : event
+    initModule    : initModule,
+    people        : people,
+    person        : person,
+    event         : event,
+    localBusiness : localBusiness
   };
   //------ パブリックメソッド終了 ---------------
 }());

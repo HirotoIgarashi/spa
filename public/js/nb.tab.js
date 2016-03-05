@@ -18,25 +18,28 @@ nb.tab = (function() {
   var
     configMap = {
       tabs_html     : String()
-          + '<ul id="myTabs" class="nav nav-tabs" role="tablist">'
-            + '<li role="presentation" class=""><a href="#calendar" id="calendar-tab" role="tab" data-toggle="tab" aria-controls="calendar" aria-expanded="true">カレンダー</a></li>'
-            + '<li role="presentation" class=""><a href="#paint" id="paint-tab" role="tab" data-toggle="tab" aria-controls="paint" aria-expanded="true">お絵かき</a></li>'
-            + '<li role="presentation" class=""><a href="#task" id="task-tab" role="tab" data-toggle="tab" aria-controls="task" aria-expanded="true">Task</a></li>'
-            + '<li role="presentation" class=""><a href="#list" id="list-tab" role="tab" data-toggle="tab" aria-controls="list" aria-expanded="true">List</a></li>'
-            + '<li role="presentation" class=""><a href="#laboratory" id="laboratory-tab" role="tab" data-toggle="tab" aria-controls="laboratory" aria-expanded="true">研究室</a></li>'
-          + '</ul>'
-          + '<div id="myTabContent" class="tab-content">'
-            + '<div role="tabpanel" class="tab-pane fade" id="calendar" aria-labelledby="calendar-tab">'
-            + '</div>'
-            + '<div role="tabpanel" class="tab-pane fade" id="paint" aria-labelledby="paint-tab">'
-            + '</div>'
-            + '<div role="tabpanel" class="tab-pane fade" id="task" aria-labelledby="task-tab">'
-            + '</div>'
-            + '<div role="tabpanel" class="tab-pane fade" id="list" aria-labelledby="list-tab">'
-            + '</div>'
-            + '<div role="tabpanel" class="tab-pane fade" id="laboratory" aria-labelledby="laboratory-tab">'
-            + '</div>'
-          + '</div>',
+            + '<ul id="myTabs" class="nav nav-tabs" role="tablist">'
+              + '<li role="presentation" class=""><a href="#calendar" id="calendar-tab" role="tab" data-toggle="tab" aria-controls="calendar" aria-expanded="true">カレンダー</a></li>'
+              + '<li role="presentation" class=""><a href="#localBusiness" id="localBusiness-tab" role="tab" data-toggle="tab" aria-controls="localBusiness" aria-expanded="true">ローカルビジネス</a></li>'
+              + '<li role="presentation" class=""><a href="#paint" id="paint-tab" role="tab" data-toggle="tab" aria-controls="paint" aria-expanded="true">お絵かき</a></li>'
+              + '<li role="presentation" class=""><a href="#task" id="task-tab" role="tab" data-toggle="tab" aria-controls="task" aria-expanded="true">Task</a></li>'
+              + '<li role="presentation" class=""><a href="#list" id="list-tab" role="tab" data-toggle="tab" aria-controls="list" aria-expanded="true">List</a></li>'
+              + '<li role="presentation" class=""><a href="#laboratory" id="laboratory-tab" role="tab" data-toggle="tab" aria-controls="laboratory" aria-expanded="true">研究室</a></li>'
+            + '</ul>'
+            + '<div id="myTabContent" class="tab-content">'
+              + '<div role="tabpanel" class="tab-pane fade" id="calendar" aria-labelledby="calendar-tab">'
+              + '</div>'
+              + '<div role="tabpanel" class="tab-pane fade" id="localBusiness" aria-labelledby="localBusiness-tab">'
+              + '</div>'
+              + '<div role="tabpanel" class="tab-pane fade" id="paint" aria-labelledby="paint-tab">'
+              + '</div>'
+              + '<div role="tabpanel" class="tab-pane fade" id="task" aria-labelledby="task-tab">'
+              + '</div>'
+              + '<div role="tabpanel" class="tab-pane fade" id="list" aria-labelledby="list-tab">'
+              + '</div>'
+              + '<div role="tabpanel" class="tab-pane fade" id="laboratory" aria-labelledby="laboratory-tab">'
+              + '</div>'
+            + '</div>',
       settable_map  : { color_name: true },
       color_name    : 'blue'
     },
@@ -62,12 +65,13 @@ nb.tab = (function() {
       var $container = stateMap.container;
 
       jqueryMap = {
-        $container  : $container,
-        $calendar   : $container.find( '#calendar' ),
-        $paint      : $container.find( '#paint' ),
-        $task       : $container.find( '#task' ),
-        $list       : $container.find( '#list' ),
-        $laboratory : $container.find( '#laboratory' )
+        $container      : $container,
+        $calendar       : $container.find( '#calendar' ),
+        $localBusiness  : $container.find( '#localBusiness' ),
+        $paint          : $container.find( '#paint' ),
+        $task           : $container.find( '#task' ),
+        $list           : $container.find( '#list' ),
+        $laboratory     : $container.find( '#laboratory' )
       };
     };
     //DOMメソッド/setJqueryMap/終了
@@ -117,6 +121,10 @@ nb.tab = (function() {
         switch ( e.target.id ) {
           case 'calendar-tab':
             nb.calendar.initModule( jqueryMap.$calendar );
+            break;
+
+          case 'localBusiness-tab':
+            nb.localBusiness.initModule( jqueryMap.$localBusiness );
             break;
 
           case 'paint-tab':
