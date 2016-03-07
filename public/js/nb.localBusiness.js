@@ -212,8 +212,8 @@ nb.localBusiness = (function() {
         };
         nb.model.localBusiness.create( localbusiness_map );
       }
-      // 入力フィールドをクリアする。
-      //$('#create-localBusiness-form').find(':text').val('');
+      // メッセージフィールドをクリアする。
+      $('#localBusiness-msg').empty();
 
       // 入力フィールドを非表示にする。
       onClickMinus();
