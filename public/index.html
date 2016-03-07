@@ -19,6 +19,7 @@
     <link rel="stylesheet" href="css/nb.css" type="text/css"/>
     <link rel="stylesheet" href="css/nb.shell.css" type="text/css"/>
     <link rel="stylesheet" href="css/nb.calendar.css" type="text/css"/>
+    <link rel="stylesheet" href="css/nb.localBusiness.css" type="text/css"/>
     <link rel="stylesheet" href="css/nb.paint.css" type="text/css"/>
     <link rel="stylesheet" href="css/nb.laboratory.css" type="text/css"/>
 
@@ -56,8 +57,7 @@
     <script type="text/dust" id="localBusiness-template">
       <div class="container-fluid">
         <p id="localBusiness-msg"></p>
-        <ul id="local-business">
-        </ul>
+        <div id="local-business" />
         <a>
           <span class="glyphicon glyphicon-plus localBusiness-plus">
           </span>
@@ -123,7 +123,7 @@
           </div>
           <div class="form-group">
             <div class="col-sm-offset-2 col-sm-10">
-              <button id="createPlace" class="btn btn-default">
+              <button id="create-local-business-button" class="btn btn-default">
                 追加
               </button>
             </div>
@@ -135,7 +135,8 @@
 
     <!-- localBusiness-microdata-template -->
     <script type="text/dust" id="localBusiness-microdata-template">
-      <div itemscope itemtype="http://schema.org/LocalBusiness">
+      <div itemscope itemtype="http://schema.org/LocalBusiness" data-id="{_id}">
+
         <span itemprop="name">{name}</span>
         <span itemprop="description"></span>
         <div itemprop="address" itemscope itemtype="http://schema.org/PostalAddress">
@@ -149,6 +150,15 @@
         <br />
         Hours:
         <meta itemprop="openingHours" content="{openingHours}">{openingHours}
+        <div class="btn-group pull-right">
+          <button class="localBusiness-edit btn" type="button">
+            <span class="glyphicon glyphicon-edit" />
+          </button>
+          <button class="localBusiness-remove btn" type="button">
+            <span class="glyphicon glyphicon-trash" />
+          </button>
+        </div>
+
       </div>
     </script>
 

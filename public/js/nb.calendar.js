@@ -89,7 +89,7 @@ nb.calendar = (function() {
     onEventupdate,
     onEventlistupdate,
     onClickEdit,
-    onClickRemove,
+    onClickDestroy,
     onEventDelete;
 
     //------ モジュールスコープ変数終了 -----------
@@ -473,7 +473,7 @@ nb.calendar = (function() {
       $td_remove        = $( '<td class="removebutton"></td>' );
 
       $button_remove = $( '<button data-id="' + event_item._id + '" id="event-remove" type="button"></button>' );
-      $button_remove.on( 'click', onClickRemove );
+      $button_remove.on( 'click', onClickDestroy );
 
       $span_remove  = $( '<span class="glyphicon glyphicon-remove"></span>' );
 
@@ -645,7 +645,8 @@ nb.calendar = (function() {
       event_table = makeEventTable( startDate );
 
       if ( jqueryMap.$col_sm_8.find( '#event-table' ).length === 0 ) {
-        jqueryMap.$col_sm_8
+        $( '#event-exist' ).empty();
+        jqueryMap.$col_sm_8.find( '#div-event-table' )
           .append( event_table );
       }
       else {
@@ -753,7 +754,7 @@ nb.calendar = (function() {
     };
 
     // 削除ボタンをクリックしたとき
-    onClickRemove = function ( event ) {
+    onClickDestroy = function ( event ) {
       var event_map,
           event_id = event.currentTarget.getAttribute( 'data-id' );
 

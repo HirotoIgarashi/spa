@@ -46,7 +46,7 @@ nb.model = (function() {
     _publish_localbusiness_read,
     _publish_localbusiness_create,
     _publish_localbusiness_update,
-    _publish_localbusiness_delete,
+    _publish_localbusiness_destroy,
     initModule;
 
   personProto = {
@@ -337,7 +337,7 @@ nb.model = (function() {
     };
 
     destroy   = function ( localBusiness_map ) {
-      sio.emit( 'delete:localBusiness', localBusiness_map );
+      sio.emit( 'destroy:localBusiness', localBusiness_map );
     };
 
     return {
@@ -470,12 +470,12 @@ nb.model = (function() {
     $.gevent.publish( 'localBusiness:update', result_map );
   };
 
-  _publish_localbusiness_delete   = function ( result_list ) {
+  _publish_localbusiness_destroy   = function ( result_list ) {
     var result_map = result_list[ 0 ].delete_object;
 
     delete stateMap.localBusiness[ result_map._id ];
 
-    $.gevent.publish( 'localBusiness:delete', result_map );
+    $.gevent.publish( 'localBusiness:destroy', result_map );
   };
 
   //パブリックメソッド/initModule/開始
@@ -491,7 +491,7 @@ nb.model = (function() {
     sio.on( 'localBusiness:read',   _publish_localbusiness_read   );
     sio.on( 'localBusiness:create', _publish_localbusiness_create );
     sio.on( 'localBusiness:update', _publish_localbusiness_update );
-    sio.on( 'localBusiness:delete', _publish_localbusiness_delete );
+    sio.on( 'localBusiness:destroy', _publish_localbusiness_destroy );
 
   };
   //パブリックメソッド/initModule/終了

@@ -31,9 +31,13 @@ nb.localBusiness = (function() {
     onClickPlus,
     onClickMinus,
     onClickCreatesubmit,
+    onClickEdit,
+    onClickDestroy,
     onLocalBusinessReadError,
     onLocalBusinessRead,
     onLocalBusinessCreate,
+    onLocalBusinessUpdate,
+    onLocalBusinessDestroy,
     makeLocalBusinessHtml,
     makeLocalBusinessMicrodataHtml,
     appendLocalBusinessMicrodata;
@@ -51,7 +55,10 @@ nb.localBusiness = (function() {
     setJqueryMap = function() {
       var $container = stateMap.container;
 
-      jqueryMap = { $container: $container };
+      jqueryMap = {
+        $container  : $container,
+        $form       : $container.find( '#create-localBusiness-form' )
+      };
     };
     //DOMメソッド/setJqueryMap/終了
 
@@ -70,7 +77,6 @@ nb.localBusiness = (function() {
       setJqueryMap();
 
       // Render the template
-      //dust.render( 'localBusiness', { world : "Earth" }, function ( err, out ) {
       dust.render( 'localBusiness', {}, function ( err, out ) {
         jqueryMap.$container.html( out );
       });
@@ -86,11 +92,12 @@ nb.localBusiness = (function() {
     //DOMメソッド/makeLocalBusinessMicrodataHtml/開始
     makeLocalBusinessMicrodataHtml = function ( result_map ) {
       var object_key,
-          localbusiness_map;
+          local_business_map;
 
       for ( object_key in result_map ) {
         if ( result_map.hasOwnProperty( object_key ) ) {
-          localbusiness_map = {
+          local_business_map = {
+            "_id"             : result_map[ object_key ]._id,
             "name"            : result_map[ object_key ].name,
             "postalCode"      : result_map[ object_key ].postalCode,
             "addressRegion"   : result_map[ object_key ].addressRegion,
@@ -103,23 +110,47 @@ nb.localBusiness = (function() {
           };
 
           // Render the template
-          appendLocalBusinessMicrodata( localbusiness_map );
+          appendLocalBusinessMicrodata( local_business_map );
         }
       }
     };
     //DOMメソッド/makeLocalBusinessMicrodataHtml/終了
 
     //DOMメソッド/appendLocalBusinessMicrodata/開始
-    appendLocalBusinessMicrodata = function ( localbusiness_map ) {
+    appendLocalBusinessMicrodata = function ( local_business_map ) {
       var src = $('#localBusiness-microdata-template').text(),
           compiled = dust.compile( src, 'localBusinessMicrodata' );
 
       // Register the template with Dust
       dust.loadSource( compiled );
 
-      dust.render( 'localBusinessMicrodata', localbusiness_map, function ( err, out ) {
-        $( '#local-business' ).append( out );
+      console.log( local_business_map._id );
+      if ( $('#local-business [data-id="' + local_business_map._id + '"]').length === 0 ) {
+        console.log('見つからない');
+      }
+      else {
+        console.log('見つかった');
+      }
+
+      dust.render( 'localBusinessMicrodata', local_business_map, function ( err, out ) {
+        if ( $('#local-business [data-id="' + local_business_map._id + '"]').length === 0 ) {
+          $( '#local-business' ).append( out );
+        }
+        else {
+          $('#local-business [data-id="' + local_business_map._id + '"]')
+            .replaceWith( out );
+        }
+
+        $( '#local-business' )
+          .find( '[data-id="' + local_business_map._id + '" ]' )
+          .find( '.localBusiness-edit' )
+          .on( 'click', onClickEdit );
+        $( '#local-business' )
+          .find( '[data-id="' + local_business_map._id + '" ]' )
+          .find( '.localBusiness-remove' )
+          .on( 'click', onClickDestroy );
       });
+
     };
     //DOMメソッド/appendLocalBusinessMicrodata/終了
     //------ DOMメソッド終了 ----------------------
@@ -131,45 +162,106 @@ nb.localBusiness = (function() {
       $('.localBusiness-minus').show();
       $('#create-localBusiness-form').show();
     };
+
     onClickMinus = function () {
+      // 入力フィールドの値をクリアする。
+      $('#create-localBusiness-form').find(':text').val('');
+      $('#create-localBusiness-form').attr( 'data-id', '' );
+
+      // 入力フィールドを非表示にする。
       $('.localBusiness-plus').show();
       $('.localBusiness-minus').hide();
       $('#create-localBusiness-form').hide();
     };
 
     onClickCreatesubmit = function ( event ) {
-      var localbusiness_map;
+      var form_id,
+          localbusiness_map;
 
       event.preventDefault();
 
-      localbusiness_map = {
-        name            : $( '#name'            ).val(),
-        postalCode      : $( '#postalCode'      ).val(),
-        addressRegion   : $( '#addressRegion'   ).val(),
-        addressLocality : $( '#addressLocality' ).val(),
-        streetAddress   : $( '#streetAddress'   ).val(),
-        telephone       : $( '#telephone'       ).val(),
-        faxNumber       : $( '#faxNumber'       ).val(),
-        openingHours    : $( '#openingHours'    ).val(),
-        url             : $( '#url'             ).val()
-      };
+      form_id = event.currentTarget.getAttribute( 'data-id' );
 
-      nb.model.localBusiness.create( localbusiness_map );
-      
-      $('#create-localBusiness-form').find(':text').val('');
-      /*
-      $( '#name'            ).val('');
-      $( '#postalCode'      ).val('');
-      $( '#addressRegion'   ).val('');
-      $( '#addressLocality' ).val('');
-      $( '#streetAddress'   ).val('');
-      $( '#telephone'       ).val('');
-      $( '#faxNumber'       ).val('');
-      $( '#openingHours'    ).val('');
-      $( '#url'             ).val('');
-      */
+      console.log( form_id );
+      if ( form_id ) {
+        localbusiness_map = {
+          _id             : form_id,
+          name            : $( '#name'            ).val(),
+          postalCode      : $( '#postalCode'      ).val(),
+          addressRegion   : $( '#addressRegion'   ).val(),
+          addressLocality : $( '#addressLocality' ).val(),
+          streetAddress   : $( '#streetAddress'   ).val(),
+          telephone       : $( '#telephone'       ).val(),
+          faxNumber       : $( '#faxNumber'       ).val(),
+          openingHours    : $( '#openingHours'    ).val(),
+          url             : $( '#url'             ).val()
+        };
+        nb.model.localBusiness.update( localbusiness_map );
+      }
+      else {
+        localbusiness_map = {
+          name            : $( '#name'            ).val(),
+          postalCode      : $( '#postalCode'      ).val(),
+          addressRegion   : $( '#addressRegion'   ).val(),
+          addressLocality : $( '#addressLocality' ).val(),
+          streetAddress   : $( '#streetAddress'   ).val(),
+          telephone       : $( '#telephone'       ).val(),
+          faxNumber       : $( '#faxNumber'       ).val(),
+          openingHours    : $( '#openingHours'    ).val(),
+          url             : $( '#url'             ).val()
+        };
+        nb.model.localBusiness.create( localbusiness_map );
+      }
+      // 入力フィールドをクリアする。
+      //$('#create-localBusiness-form').find(':text').val('');
+
+      // 入力フィールドを非表示にする。
+      onClickMinus();
 
       return false;
+    };
+
+    onClickEdit = function ( event ) {
+      var local_business_list;
+
+      local_business_list = nb.model.localBusiness.read( { _id: event.currentTarget.parentElement.parentElement.getAttribute( 'data-id' ) } );
+
+      jqueryMap.$form.show();
+      $( '.glyphicon-plus'  ).hide();
+      $( '.glyphicon-minus' ).show();
+
+      $( '#create-localBusiness-form input#name' )
+        .val( local_business_list[ 0 ].name );
+      $( '#create-localBusiness-form input#postalCode' )
+        .val( local_business_list[ 0 ].postalCode );
+      $( '#create-localBusiness-form input#addressRegion' )
+        .val( local_business_list[ 0 ].addressRegion );
+      $( '#create-localBusiness-form input#addressLocality' )
+        .val( local_business_list[ 0 ].addressLocality );
+      $( '#create-localBusiness-form input#streetAddress' )
+        .val( local_business_list[ 0 ].streetAddress );
+      $( '#create-localBusiness-form input#telephone' )
+        .val( local_business_list[ 0 ].telephone );
+      $( '#create-localBusiness-form input#faxNumber' )
+        .val( local_business_list[ 0 ].faxNumber );
+      $( '#create-localBusiness-form input#openingHours' )
+        .val( local_business_list[ 0 ].openingHours );
+      $( '#create-localBusiness-form input#url' )
+        .val( local_business_list[ 0 ].url );
+
+      $( '#create-localBusiness-form' )
+        .attr( 'data-id', local_business_list[ 0 ]._id );
+
+      // ボタンの名称を変更する。
+      $( '#create-local-business-button' ).text( '変更' );
+    };
+
+    onClickDestroy = function ( event ) {
+      var local_business_map,
+          local_business_id = event.currentTarget.parentElement.parentElement.getAttribute( 'data-id' );
+
+      local_business_map = nb.model.localBusiness.read({ _id: local_business_id });
+      nb.model.localBusiness.destroy( local_business_map );
     };
 
     onLocalBusinessCreate = function ( event, result_map ) {
@@ -192,6 +284,15 @@ nb.localBusiness = (function() {
         makeLocalBusinessMicrodataHtml( result_map );
       }
 
+    };
+
+    onLocalBusinessUpdate = function ( event, result_map ) {
+      appendLocalBusinessMicrodata( result_map );
+    };
+
+    onLocalBusinessDestroy = function ( event, result_map ) {
+      $( ' #local-business [data-id="' + result_map._id + '"]' )
+        .remove();
     };
     //------ イベントハンドラ終了 -----------------
 
@@ -236,10 +337,29 @@ nb.localBusiness = (function() {
 
         $( '#create-localBusiness-form' ).submit( onClickCreatesubmit );
 
-        $.gevent.subscribe( $container, 'localBusiness:read:error', onLocalBusinessReadError );
-        $.gevent.subscribe( $container, 'localBusiness:read', onLocalBusinessRead );
-        $.gevent.subscribe( $container, 'localBusiness:create', onLocalBusinessCreate );
+
+        $.gevent.subscribe( $container,
+                            'localBusiness:read:error',
+                            onLocalBusinessReadError );
+
+        $.gevent.subscribe( $container,
+                            'localBusiness:read',
+                            onLocalBusinessRead );
+
+        $.gevent.subscribe( $container,
+                            'localBusiness:create',
+                            onLocalBusinessCreate );
+
+        $.gevent.subscribe( $container,
+                            'localBusiness:update',
+                            onLocalBusinessUpdate );
+
+        $.gevent.subscribe( $container,
+                            'localBusiness:destroy',
+                            onLocalBusinessDestroy );
       }
+
+      setJqueryMap();
 
       return true;
     };
