@@ -297,13 +297,37 @@ nb.model = (function() {
   }());
 
   localBusiness = (function () {
-    var fetch,
+    var localBusinessProto,
+        makeLocalBusiness,
+        fetch,
         create,
         read,
         update,
         destroy,
         sio = nb.data.getSio();
 
+    // localBusinessのプロトタイプ
+    localBusinessProto = {
+      fetch : fetch,
+      create  : create,
+      read    : read,
+      update  : update,
+      destroy : destroy
+    };
+
+    // localBusinessオブジェクトを作成する。
+    makeLocalBusiness = function ( form_array ) {
+      var local_business,
+          i;
+
+      localBusiness = Object.create( localBusinessProto );
+
+      for ( i = 0; i < form_array.length; ++i ) {
+        localBusiness[ form_array[ i ].name ] = form_array[ i ].value;
+      }
+
+      return localBusiness;
+    };
     // サーバにデータを要求する。
     fetch     = function ( localBusiness_map ) {
       sio.emit( 'read:localBusiness', localBusiness_map );
@@ -341,11 +365,12 @@ nb.model = (function() {
     };
 
     return {
-      fetch     : fetch,
-      create    : create,
-      read      : read,
-      update    : update,
-      destroy   : destroy
+      makeLocalBusiness : makeLocalBusiness,
+      fetch             : fetch,
+      create            : create,
+      read              : read,
+      update            : update,
+      destroy           : destroy
     };
 
   }());
@@ -449,11 +474,16 @@ nb.model = (function() {
       result_map = result_list[ 0 ].ops[ 0 ];
 
       localBusiness_map = {
-        _id       : result_map._id,
-        name      : result_map.name,
-        startDate : result_map.startDate,
-        location  : result_map.location,
-        person_id : result_map.person_id
+        _id             : result_map._id,
+        name            : result_map.name,
+        postalCode      : result_map.postalCode,
+        addressRegion   : result_map.addressRegion,
+        addressLocality : result_map.addressLocality,
+        streetAddress   : result_map.streetAddress,
+        telephone       : result_map.telephone,
+        faxNumber       : result_map.faxNumber,
+        openingHours    : result_map.openingHours,
+        url             : result_map.url
       };
 
       stateMap.localBusiness[result_map._id] = localBusiness_map;

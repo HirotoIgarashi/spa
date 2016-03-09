@@ -1,6 +1,6 @@
 /*
  * nb.localBusiness.js
- * localBusiness 場所を処理するモジュール
+ * localBusiness ローカルビジネスのviewとcontroller
 */
 
 /*jslint        browser : true, continue  : true,
@@ -124,14 +124,6 @@ nb.localBusiness = (function() {
       // Register the template with Dust
       dust.loadSource( compiled );
 
-      console.log( local_business_map._id );
-      if ( $('#local-business [data-id="' + local_business_map._id + '"]').length === 0 ) {
-        console.log('見つからない');
-      }
-      else {
-        console.log('見つかった');
-      }
-
       dust.render( 'localBusinessMicrodata', local_business_map, function ( err, out ) {
         if ( $('#local-business [data-id="' + local_business_map._id + '"]').length === 0 ) {
           $( '#local-business' ).append( out );
@@ -175,42 +167,41 @@ nb.localBusiness = (function() {
     };
 
     onClickCreatesubmit = function ( event ) {
-      var form_id,
-          localbusiness_map;
+      var $form,
+          form_id,
+          local_business_array,
+          local_business_map = {};
 
       event.preventDefault();
 
-      form_id = event.currentTarget.getAttribute( 'data-id' );
+      $form = $(event.target);
 
-      console.log( form_id );
+      local_business_array = $form.serializeArray();
+
+      local_business_map = nb.model.localBusiness.makeLocalBusiness( local_business_array );
+
+      //form_id = event.currentTarget.getAttribute( 'data-id' );
+      form_id = event.target.getAttribute( 'data-id' );
+
+      /*
+      local_business_map.name             = $( '#name' ).val();
+      local_business_map.postalCode       = $( '#postalCode' ).val();
+      local_business_map.addressRegion    = $( '#addressRegion' ).val();
+      local_business_map.addressLocality  = $( '#addressLocality' ).val();
+      local_business_map.streetAddress    = $( '#streetAddress' ).val();
+      local_business_map.telephone        = $( '#telephone' ).val();
+      local_business_map.faxNumber        = $( '#faxNumber' ).val();
+      local_business_map.openingHours     = $( '#openingHours' ).val();
+      local_business_map.url              = $( '#url' ).val();
+      */
+
       if ( form_id ) {
-        localbusiness_map = {
-          _id             : form_id,
-          name            : $( '#name'            ).val(),
-          postalCode      : $( '#postalCode'      ).val(),
-          addressRegion   : $( '#addressRegion'   ).val(),
-          addressLocality : $( '#addressLocality' ).val(),
-          streetAddress   : $( '#streetAddress'   ).val(),
-          telephone       : $( '#telephone'       ).val(),
-          faxNumber       : $( '#faxNumber'       ).val(),
-          openingHours    : $( '#openingHours'    ).val(),
-          url             : $( '#url'             ).val()
-        };
-        nb.model.localBusiness.update( localbusiness_map );
+        local_business_map._id = form_id;
+        nb.model.localBusiness.update( local_business_map );
       }
       else {
-        localbusiness_map = {
-          name            : $( '#name'            ).val(),
-          postalCode      : $( '#postalCode'      ).val(),
-          addressRegion   : $( '#addressRegion'   ).val(),
-          addressLocality : $( '#addressLocality' ).val(),
-          streetAddress   : $( '#streetAddress'   ).val(),
-          telephone       : $( '#telephone'       ).val(),
-          faxNumber       : $( '#faxNumber'       ).val(),
-          openingHours    : $( '#openingHours'    ).val(),
-          url             : $( '#url'             ).val()
-        };
-        nb.model.localBusiness.create( localbusiness_map );
+        local_business_map._id = null;
+        nb.model.localBusiness.create( local_business_map );
       }
       // メッセージフィールドをクリアする。
       $('#localBusiness-msg').empty();
