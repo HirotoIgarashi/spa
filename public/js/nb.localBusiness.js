@@ -141,6 +141,7 @@ nb.localBusiness = (function() {
           .find( '[data-id="' + local_business_map._id + '" ]' )
           .find( '.localBusiness-remove' )
           .on( 'click', onClickDestroy );
+        $.gevent.publish( 'localBusiness:viewComplete', local_business_map._id );
       });
 
     };
@@ -182,18 +183,6 @@ nb.localBusiness = (function() {
 
       //form_id = event.currentTarget.getAttribute( 'data-id' );
       form_id = event.target.getAttribute( 'data-id' );
-
-      /*
-      local_business_map.name             = $( '#name' ).val();
-      local_business_map.postalCode       = $( '#postalCode' ).val();
-      local_business_map.addressRegion    = $( '#addressRegion' ).val();
-      local_business_map.addressLocality  = $( '#addressLocality' ).val();
-      local_business_map.streetAddress    = $( '#streetAddress' ).val();
-      local_business_map.telephone        = $( '#telephone' ).val();
-      local_business_map.faxNumber        = $( '#faxNumber' ).val();
-      local_business_map.openingHours     = $( '#openingHours' ).val();
-      local_business_map.url              = $( '#url' ).val();
-      */
 
       if ( form_id ) {
         local_business_map._id = form_id;
@@ -315,7 +304,7 @@ nb.localBusiness = (function() {
     // 戻り値: true
     // 例外発行: なし
     //
-    initModule = function( $container ) {
+    initModule = function( $container, callback ) {
             
       if ( ! jqueryMap.$container ) {
 

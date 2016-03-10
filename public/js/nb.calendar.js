@@ -90,7 +90,9 @@ nb.calendar = (function() {
     onEventlistupdate,
     onClickEdit,
     onClickDestroy,
-    onEventDelete;
+    onEventDelete,
+    onClickLocalBusiness,
+    onLocalBusinessViewComplete;
 
     //------ モジュールスコープ変数終了 -----------
 
@@ -382,7 +384,7 @@ nb.calendar = (function() {
       // 場所
       $('<label for="location" class="col-sm-2 control-label">場所:</label>')
         .appendTo( $form_group_location );
-      $('<div class="col-sm-10"><input type="text" class="form-control" id="location" placefolder="場所"/></div>')
+      $('<div class="col-sm-10"><input type="text" class="form-control" id="location" placefolder="場所" disabled /></div>')
         .appendTo( $form_group_location );
 
       // Submit
@@ -395,6 +397,13 @@ nb.calendar = (function() {
       $form_group_endDate.clone().appendTo( $horizontalForm );
       $form_group_endTime.clone().appendTo( $horizontalForm );
       $form_group_location.clone().appendTo( $horizontalForm );
+
+      // localBusinessを追加するボタン
+      $('<button type="button" id="localBusiness">ローカルビジネスから選択</button>')
+        .on( 'click', onClickLocalBusiness )
+        .clone( true )
+        .appendTo( $horizontalForm );
+
       $form_group_submit.clone().appendTo( $horizontalForm );
 
 
@@ -405,11 +414,26 @@ nb.calendar = (function() {
       $('<div id="result-text"/>').appendTo( $horizontalForm );
 
       $( $horizontalForm ).appendTo( documnetFragment );
+      $( '<div id="localBusiness-area" />' ).appendTo( documnetFragment );
+
 
       return documnetFragment;
     };
     //DOMメソッド/makeEventForm/終了
 
+    onClickLocalBusiness = function ( event ) {
+      nb.localBusiness.initModule( $('#localBusiness-area') );
+    };
+    
+    onLocalBusinessViewComplete = function( event, id ) {
+      var name;
+      console.log( 'onClickLocalBusiness: ' + id );
+      $( '[data-id="' + id + '"]' ).on( 'click', function( event ) {
+        name = $( '[data-id="' + id + '"]' ).find( '[itemprop="name"]' ).text();
+        console.log( name );
+        $( '#location' ).val( name );
+      });
+    };
     //DOMメソッド/makeEventTable/開始
     makeEventTable = function ( dateData ) {
       var i,
@@ -667,7 +691,7 @@ nb.calendar = (function() {
       // カレンダーテーブルを書き換える
       $tr = makeEventTr( result_map );
       // event tableを変更する。
-      $('#event-table [data-id="' + result_map._id + '"]')
+      $( '#event-table [data-id="' + result_map._id + '"]' )
         .replaceWith( $tr );
 
       //  フォームからidを削除する。
@@ -822,6 +846,7 @@ nb.calendar = (function() {
         $.gevent.subscribe( $container, 'eventupdate', onEventupdate );
         $.gevent.subscribe( $container, 'eventdelete', onEventDelete );
         $.gevent.subscribe( $container, 'eventlistupdate', onEventlistupdate );
+        $.gevent.subscribe( $container, 'localBusiness:viewComplete', onLocalBusinessViewComplete );
       }
 
       return true;

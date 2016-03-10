@@ -320,13 +320,13 @@ nb.model = (function() {
       var local_business,
           i;
 
-      localBusiness = Object.create( localBusinessProto );
+      local_business = Object.create( localBusinessProto );
 
       for ( i = 0; i < form_array.length; ++i ) {
-        localBusiness[ form_array[ i ].name ] = form_array[ i ].value;
+        local_business[ form_array[ i ].name ] = form_array[ i ].value;
       }
 
-      return localBusiness;
+      return local_business;
     };
     // サーバにデータを要求する。
     fetch     = function ( localBusiness_map ) {
@@ -463,7 +463,8 @@ nb.model = (function() {
 
   _publish_localbusiness_create   = function ( result_list ) {
     var result_map,
-        localBusiness_map;
+        prop,
+        localBusiness_map = {};
 
     if ( result_list[ 0 ].error_msg ) {
       result_map = result_list[ 0 ];
@@ -473,18 +474,13 @@ nb.model = (function() {
     else {
       result_map = result_list[ 0 ].ops[ 0 ];
 
-      localBusiness_map = {
-        _id             : result_map._id,
-        name            : result_map.name,
-        postalCode      : result_map.postalCode,
-        addressRegion   : result_map.addressRegion,
-        addressLocality : result_map.addressLocality,
-        streetAddress   : result_map.streetAddress,
-        telephone       : result_map.telephone,
-        faxNumber       : result_map.faxNumber,
-        openingHours    : result_map.openingHours,
-        url             : result_map.url
-      };
+      console.log( result_map );
+
+      for ( prop in result_map ) {
+        if ( result_map.hasOwnProperty( prop ) ) {
+          localBusiness_map[ prop ] = prop;
+        }
+      }
 
       stateMap.localBusiness[result_map._id] = localBusiness_map;
       $.gevent.publish( 'localBusiness:create', result_map );
