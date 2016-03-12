@@ -372,6 +372,8 @@ nb.localBusiness = (function() {
         // onLocalBusinessReadが呼ばれる
         nb.model.localBusiness.fetch();
 
+        setJqueryMap();
+
         jqueryMap.$container
           .find( '#create-localBusiness-form' )
           .submit( onClickCreatesubmit );
