@@ -81,11 +81,19 @@ nb.localBusiness = (function() {
         jqueryMap.$container.html( out );
       });
 
-      $('.localBusiness-minus').hide();
-      $('#create-localBusiness-form').hide();
+      jqueryMap.$container
+        .find('.localBusiness-minus')
+        .hide();
+      jqueryMap.$container
+        .find('#create-localBusiness-form').hide();
 
-      $('.localBusiness-plus').on( 'click', onClickPlus );
-      $('.localBusiness-minus').on( 'click', onClickMinus );
+      jqueryMap.$container
+        .find('.localBusiness-plus')
+        .on( 'click', onClickPlus );
+
+      jqueryMap.$container
+        .find('.localBusiness-minus')
+        .on( 'click', onClickMinus );
     };
     //DOMメソッド/makeLocalBusinessHtml/終了
 
@@ -125,20 +133,25 @@ nb.localBusiness = (function() {
       dust.loadSource( compiled );
 
       dust.render( 'localBusinessMicrodata', local_business_map, function ( err, out ) {
-        if ( $('#local-business [data-id="' + local_business_map._id + '"]').length === 0 ) {
-          $( '#local-business' ).append( out );
+        if ( jqueryMap.$container.find('#local-business [data-id="' + local_business_map._id + '"]').length === 0 ) {
+          jqueryMap.$container
+            .find( '#local-business' )
+            .append( out );
         }
         else {
-          $('#local-business [data-id="' + local_business_map._id + '"]')
+          jqueryMap.$container
+            .find('#local-business [data-id="' + local_business_map._id + '"]')
             .replaceWith( out );
         }
 
-        $( '#local-business' )
-          .find( '[data-id="' + local_business_map._id + '" ]' )
+        jqueryMap.$container
+          .find( '#local-business' )
+          .find( '[data-id="' + local_business_map._id + '"]' )
           .find( '.localBusiness-edit' )
           .on( 'click', onClickEdit );
-        $( '#local-business' )
-          .find( '[data-id="' + local_business_map._id + '" ]' )
+        jqueryMap.$container
+          .find( '#local-business' )
+          .find( '[data-id="' + local_business_map._id + '"]' )
           .find( '.localBusiness-remove' )
           .on( 'click', onClickDestroy );
         $.gevent.publish( 'localBusiness:viewComplete', local_business_map._id );
@@ -151,20 +164,37 @@ nb.localBusiness = (function() {
     //------ イベントハンドラ開始 -----------------
     // 例: onClickButton = ...
     onClickPlus = function () {
-      $('.localBusiness-plus').hide();
-      $('.localBusiness-minus').show();
-      $('#create-localBusiness-form').show();
+      jqueryMap.$container
+        .find('.localBusiness-plus')
+        .hide();
+      jqueryMap.$container
+        .find('.localBusiness-minus')
+        .show();
+      jqueryMap.$container
+        .find('#create-localBusiness-form')
+        .show();
     };
 
     onClickMinus = function () {
       // 入力フィールドの値をクリアする。
-      $('#create-localBusiness-form').find(':text').val('');
-      $('#create-localBusiness-form').attr( 'data-id', '' );
+      jqueryMap.$container
+        .find('#create-localBusiness-form')
+        .find(':text')
+        .val('');
+      jqueryMap.$container
+        .find('#create-localBusiness-form')
+        .attr( 'data-id', '' );
 
       // 入力フィールドを非表示にする。
-      $('.localBusiness-plus').show();
-      $('.localBusiness-minus').hide();
-      $('#create-localBusiness-form').hide();
+      jqueryMap.$container
+        .find('.localBusiness-plus')
+        .show();
+      jqueryMap.$container
+        .find('.localBusiness-minus')
+        .hide();
+      jqueryMap.$container
+        .find('#create-localBusiness-form')
+        .hide();
     };
 
     onClickCreatesubmit = function ( event ) {
@@ -193,10 +223,14 @@ nb.localBusiness = (function() {
         nb.model.localBusiness.create( local_business_map );
       }
       // メッセージフィールドをクリアする。
-      $('#localBusiness-msg').empty();
+      jqueryMap.$container
+        .find('#localBusiness-msg')
+      .empty();
 
       // 入力フィールドを非表示にする。
       onClickMinus();
+
+      $form.hide();
 
       return false;
     };
@@ -207,33 +241,48 @@ nb.localBusiness = (function() {
       local_business_list = nb.model.localBusiness.read( { _id: event.currentTarget.parentElement.parentElement.getAttribute( 'data-id' ) } );
 
       jqueryMap.$form.show();
-      $( '.glyphicon-plus'  ).hide();
-      $( '.glyphicon-minus' ).show();
+      jqueryMap.$container
+        .find( '.glyphicon-plus'  )
+        .hide();
+      jqueryMap.$container
+        .find( '.glyphicon-minus' )
+        .show();
 
-      $( '#create-localBusiness-form input#name' )
+      jqueryMap.$container
+        .find( '#create-localBusiness-form input#name' )
         .val( local_business_list[ 0 ].name );
-      $( '#create-localBusiness-form input#postalCode' )
+      jqueryMap.$container
+        .find( '#create-localBusiness-form input#postalCode' )
         .val( local_business_list[ 0 ].postalCode );
-      $( '#create-localBusiness-form input#addressRegion' )
+      jqueryMap.$container
+        .find( '#create-localBusiness-form input#addressRegion' )
         .val( local_business_list[ 0 ].addressRegion );
-      $( '#create-localBusiness-form input#addressLocality' )
+      jqueryMap.$container
+        .find( '#create-localBusiness-form input#addressLocality' )
         .val( local_business_list[ 0 ].addressLocality );
-      $( '#create-localBusiness-form input#streetAddress' )
+      jqueryMap.$container
+        .find( '#create-localBusiness-form input#streetAddress' )
         .val( local_business_list[ 0 ].streetAddress );
-      $( '#create-localBusiness-form input#telephone' )
+      jqueryMap.$container
+        .find( '#create-localBusiness-form input#telephone' )
         .val( local_business_list[ 0 ].telephone );
-      $( '#create-localBusiness-form input#faxNumber' )
+      jqueryMap.$container
+        .find( '#create-localBusiness-form input#faxNumber' )
         .val( local_business_list[ 0 ].faxNumber );
-      $( '#create-localBusiness-form input#openingHours' )
+      jqueryMap.$container
+        .find( '#create-localBusiness-form input#openingHours' )
         .val( local_business_list[ 0 ].openingHours );
-      $( '#create-localBusiness-form input#url' )
+      jqueryMap.$container
+        .find( '#create-localBusiness-form input#url' )
         .val( local_business_list[ 0 ].url );
 
-      $( '#create-localBusiness-form' )
+      jqueryMap.$container
+        .find( '#create-localBusiness-form' )
         .attr( 'data-id', local_business_list[ 0 ]._id );
 
       // ボタンの名称を変更する。
-      $( '#create-local-business-button' ).text( '変更' );
+      jqueryMap.$container
+        .find( '#create-local-business-button' ).text( '変更' );
     };
 
     onClickDestroy = function ( event ) {
@@ -251,13 +300,17 @@ nb.localBusiness = (function() {
     };
 
     onLocalBusinessReadError = function ( event, error_msg ) {
-      $('#localBusiness-msg').text( error_msg );
+      jqueryMap.$container
+        .find('#localBusiness-msg')
+        .text( error_msg );
     };
 
     onLocalBusinessRead = function ( event, result_map ) {
 
       if ( Object.keys( result_map ).length === 0 ) {
-        $('#localBusiness-msg').text( '登録されているデータは0件です。');
+        jqueryMap.$container
+          .find('#localBusiness-msg')
+          .text( '登録されているデータは0件です。');
       }
       else {
         // Microdataを生成し表示する。
@@ -271,7 +324,8 @@ nb.localBusiness = (function() {
     };
 
     onLocalBusinessDestroy = function ( event, result_map ) {
-      $( ' #local-business [data-id="' + result_map._id + '"]' )
+      jqueryMap.$container
+        .find( ' #local-business [data-id="' + result_map._id + '"]' )
         .remove();
     };
     //------ イベントハンドラ終了 -----------------
@@ -306,7 +360,10 @@ nb.localBusiness = (function() {
     //
     initModule = function( $container, callback ) {
             
-      if ( ! jqueryMap.$container ) {
+      stateMap.container = $container;
+      setJqueryMap();
+
+      //if ( $container.find( '[itemscope]' ).length === 0 ) {
 
         // LocalBusiness用のHTMLを生成して表示する。
         makeLocalBusinessHtml( $container );
@@ -315,7 +372,9 @@ nb.localBusiness = (function() {
         // onLocalBusinessReadが呼ばれる
         nb.model.localBusiness.fetch();
 
-        $( '#create-localBusiness-form' ).submit( onClickCreatesubmit );
+        jqueryMap.$container
+          .find( '#create-localBusiness-form' )
+          .submit( onClickCreatesubmit );
 
 
         $.gevent.subscribe( $container,
@@ -337,9 +396,7 @@ nb.localBusiness = (function() {
         $.gevent.subscribe( $container,
                             'localBusiness:destroy',
                             onLocalBusinessDestroy );
-      }
-
-      setJqueryMap();
+      //}
 
       return true;
     };

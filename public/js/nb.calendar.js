@@ -90,6 +90,8 @@ nb.calendar = (function() {
     onEventlistupdate,
     onClickEdit,
     onClickDestroy,
+    onClickPlus,
+    onClickMinus,
     onEventDelete,
     onClickLocalBusiness,
     onLocalBusinessViewComplete;
@@ -399,13 +401,12 @@ nb.calendar = (function() {
       $form_group_location.clone().appendTo( $horizontalForm );
 
       // localBusinessを追加するボタン
-      $('<button type="button" id="localBusiness">ローカルビジネスから選択</button>')
+      $('<button type="button" id="localBusiness_button">ローカルビジネスから選択</button>')
         .on( 'click', onClickLocalBusiness )
         .clone( true )
         .appendTo( $horizontalForm );
 
       $form_group_submit.clone().appendTo( $horizontalForm );
-
 
       $horizontalForm
         .submit( onClickAddEvent )
@@ -423,16 +424,22 @@ nb.calendar = (function() {
 
     onClickLocalBusiness = function ( event ) {
       nb.localBusiness.initModule( $('#localBusiness-area') );
+      //$('#localBusiness-area').show();
     };
     
     onLocalBusinessViewComplete = function( event, id ) {
       var name;
-      console.log( 'onClickLocalBusiness: ' + id );
-      $( '[data-id="' + id + '"]' ).on( 'click', function( event ) {
-        name = $( '[data-id="' + id + '"]' ).find( '[itemprop="name"]' ).text();
-        console.log( name );
-        $( '#location' ).val( name );
-      });
+
+      if ( jqueryMap.$container.find('[itemprop]').length !== 0 ) {
+        $( '[data-id="' + id + '"]' ).on( 'click', function( event ) {
+          name = $( '[data-id="' + id + '"]' ).find( '[itemprop="name"]' ).text();
+          $( '#location' ).val( name );
+
+          // 選択し終えたら隠す。
+          $('#localBusiness-area').hide();
+
+        });
+      }
     };
     //DOMメソッド/makeEventTable/開始
     makeEventTable = function ( dateData ) {
@@ -590,21 +597,9 @@ nb.calendar = (function() {
       $('.glyphicon-minus')
         .hide();
 
-      $('.glyphicon-plus').on('click', function() {
-        jqueryMap.$event_form.show();
-        $('.glyphicon-plus')
-          .hide();
-        $('.glyphicon-minus')
-          .show();
-      });
+      $('.glyphicon-plus').on('click', onClickPlus );
 
-      $('.glyphicon-minus').on('click', function() {
-        jqueryMap.$event_form.hide();
-        $('.glyphicon-minus')
-          .hide();
-        $('.glyphicon-plus')
-          .show();
-      });
+      $('.glyphicon-minus').on('click', onClickMinus );
 
     };
     // onClickAddEvent
@@ -651,6 +646,8 @@ nb.calendar = (function() {
       nb.model.event.create( event_map );
 
       $('#div-add-event-form').find(':text').val('');
+
+      onClickMinus();
 
       return false;
     };
@@ -785,6 +782,22 @@ nb.calendar = (function() {
       event_map = nb.model.event.read( { _id: event_id } );
 
       nb.model.event.destroy( event_map );
+    };
+
+    onClickPlus = function () {
+      jqueryMap.$event_form.show();
+      $('.glyphicon-plus')
+        .hide();
+      $('.glyphicon-minus')
+        .show();
+    };
+
+    onClickMinus = function () {
+      jqueryMap.$event_form.hide();
+      $('.glyphicon-minus')
+        .hide();
+      $('.glyphicon-plus')
+        .show();
     };
 
     //------ イベントハンドラ終了 -----------------

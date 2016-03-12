@@ -361,6 +361,7 @@ nb.model = (function() {
     };
 
     destroy   = function ( localBusiness_map ) {
+      console.log( localBusiness_map );
       sio.emit( 'destroy:localBusiness', localBusiness_map );
     };
 
@@ -474,11 +475,9 @@ nb.model = (function() {
     else {
       result_map = result_list[ 0 ].ops[ 0 ];
 
-      console.log( result_map );
-
       for ( prop in result_map ) {
         if ( result_map.hasOwnProperty( prop ) ) {
-          localBusiness_map[ prop ] = prop;
+          localBusiness_map[ prop ] = result_map[ prop ];
         }
       }
 
