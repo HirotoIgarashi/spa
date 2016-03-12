@@ -424,7 +424,7 @@ nb.calendar = (function() {
 
     onClickLocalBusiness = function ( event ) {
       nb.localBusiness.initModule( $('#localBusiness-area') );
-      //$('#localBusiness-area').show();
+      $('#localBusiness-area').show();
     };
     
     onLocalBusinessViewComplete = function( event, id ) {
